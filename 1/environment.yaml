@@ -1,0 +1,4 @@
+name: dsa-prac1
+dependencies:
+  - sphinx
+  - pycodestyle
