@@ -1,6 +1,7 @@
 import sys
-from typing import List, Callable, Any
+from typing import Sequence, Callable, Any
 from functools import total_ordering
+import numpy as np
 
 from DSAsorts import bubbleSort, selectionSort, insertionSort
 
@@ -12,7 +13,7 @@ class Student():
         self._name = str(name)
 
     def __str__(self):
-        return "{self.id},{self.name}"
+        return f"{self.id},{self.name}"
 
     def __lt__(self, other) -> bool:
         return self.id < other.id
@@ -29,7 +30,15 @@ class Student():
         return self._name
 
 
-def readCsvFile(filename: str, parseLine: Callable[..., Any]) -> List[Any]:
+def fileLen(filename: str) -> int:
+    i = 0
+    with open(filename) as f:
+        for x in f:
+            i += 1
+    return i
+
+
+def readCsvFile(filename: str, parseLine: Callable[..., Any]) -> Sequence[Any]:
     """Reads a CSV file, calling the given function on each row.
 
     Args:
@@ -38,11 +47,15 @@ def readCsvFile(filename: str, parseLine: Callable[..., Any]) -> List[Any]:
     Returns:
         List containing all values returned from ``parseLine``.
     """
+    arr = np.empty(fileLen(filename), dtype=object)
     with open(filename) as f:
-        return [parseLine(*line.rstrip('\n').split(',')) for line in f]
+        for i, line in enumerate(f):
+            arr[i] = parseLine(*line.rstrip('\n').split(','))
+    return arr
 
 
-def testSortingAlgorithms(unordered: List[Any], key: Callable[[Any], Any]) -> (List[Any], bool):
+def testSortingAlgorithms(unordered: Sequence[Any],
+                          key: Callable[[Any], Any]) -> (Sequence[Any], bool):
     """Uses a list of unordered data to test the sorting alorithms
         implemented in ```DSAsorts.py```.
 
@@ -51,34 +64,36 @@ def testSortingAlgorithms(unordered: List[Any], key: Callable[[Any], Any]) -> (L
         key : A function which, given an element of the list, returns
             an instance of the variable that is used to compare the element.
             This is required because selectionSort, one of the algorithms that
-            is tested, is an unstable sort. The equality operator is used to ensure
-            the other sorts are stable, and the key is used to ensure the unstable sorts
+            is tested, is an unstable sort.
+            The equality operator is used to ensure the other sorts are stable,
+            and the key is used to ensure the unstable sorts
             sort correctly.
-            For example, ``Student`` orders by _id, so a good key to use would be
-            ``lambda x: x.id``.
+            For example, ``Student`` orders by _id,
+            so a good key to use would be ``lambda x: x.id``.
     Returns:
-        A tuple containing the sorted data, and a boolean value which indicates true if
-        all sorting algorithms worked.
+        A tuple containing the sorted data, and a boolean value which
+        indicates true if all sorting algorithms worked.
     """
     sorted_data = sorted(unordered)
-    return sorted_data, (sorted_data
-        == bubbleSort(unordered)
-        == insertionSort(unordered)
-        and [key(x) for x in sorted_data]
-        == [key(x) for x in selectionSort(unordered)])
+    return sorted_data, \
+        (np.array_equal(sorted_data, insertionSort(unordered.copy()))
+         # and np.array_equal(sorted_data, bubbleSort(unordered))
+         and np.array_equal([key(x) for x in sorted_data],
+                            [key(x) for x in selectionSort(unordered.copy())]))
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Usage: python3 SortFile.py <read file> <write file>")
     else:
         try:
             students = readCsvFile(sys.argv[1], Student)
-            sorted_students, isSorted = testSortingAlgorithms(students, lambda x: x.id)
+            sorted_students, isSorted = \
+                testSortingAlgorithms(students, lambda x: x.id)
             if not isSorted:
                 print("Sorting algorithms failed.")
             else:
                 with open(sys.argv[2], "w") as f:
-                    [f.write("{x}\n") for x in sorted_students] 
+                    [f.write(f"{x}\n") for x in sorted_students]
         except IOError as ioErr:
             print(f"Error opening file: {ioErr}")
