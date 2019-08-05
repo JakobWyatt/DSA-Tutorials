@@ -1,0 +1,35 @@
+digraph DSA_ADT {
+    node [
+        shape = "record"
+    ]
+    DSAStack [
+                label = "{DSAStack|- stack: Array[Object]\l- count: int\l- DEFAULT_CAPACITY : int = 100|+ push(item: Object) : None\l+ pop() : Object\l+ top() : Object\l+ isEmpty() : bool\l+ isFull() : bool\l+ count() : int\l}"
+        ]
+
+    DSAQueue [
+                label = <{<i>DSAQueue</i>|+ enqueue(item: Object) : None<br align="left"/>+ dequeue() : Object<br align="left"/>+ peek() : Object<br align="left"/>+ isEmpty() : bool<br align="left"/>+ isFull() : bool<br align="left"/>+ count() : int<br align="left"/>}>
+        ]
+
+    DSAShufflingQueue [
+                label = "{DSAShufflingQueue|- queue: Array[Object]\l- count: int\l- DEFAULT_CAPACITY : int = 100|^ + enqueue(item: Object) : None\l^ + dequeue() : Object\l^ + peek() : Object\l^ + isEmpty() : bool\l^ + isFull() : bool\l^ + count() : int\l}"
+        ]
+
+    DSACircularQueue [
+                label = "{DSACircularQueue|- queue: Array[Object]\l- count: int\l- head: int\l- DEFAULT_CAPACITY : int = 100|^ + enqueue(item: Object) : None\l^ + dequeue() : Object\l^ + peek() : Object\l^ + isEmpty() : bool\l^ + isFull() : bool\l^ + count() : int\l}"
+        ]
+
+    TestDSAADT [
+                label = "{TestDSAADT|+ testDSAStack() : None\l+ testDSAShufflingQueue() : None\l+ testDSACircularQueue() : None\l}"
+        ]
+    
+    unittestTestCase [
+                label = "{unittest.TestCase}"
+        ]
+
+    edge [
+                arrowhead = "empty"
+        ]
+    DSAQueue -> DSAShufflingQueue
+    DSAQueue -> DSACircularQueue
+    unittestTestCase -> TestDSAADT
+}
