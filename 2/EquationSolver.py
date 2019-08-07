@@ -56,4 +56,7 @@ def _executeOperation(op : str, op1 : float, op2 : float):
     }[op]
 
 if __name__ == '__main__':
-    print(solve(sys.argv[1]))
+    try:
+        print(solve(sys.argv[1]))
+    except:
+        print("Invalid equation.")

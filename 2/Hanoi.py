@@ -14,4 +14,7 @@ def moveDisk(src : int, dest : int) -> None:
     print(f"Moving top disk from peg {src} to peg {dest}")
 
 if __name__ == "__main__":
-    towers(*[int(x) for x in sys.argv[1:]])
+    try:
+        towers(*[int(x) for x in sys.argv[1:]])
+    except:
+        print("Usage: python3 Hanoi.py <n> <src> <dest>")
