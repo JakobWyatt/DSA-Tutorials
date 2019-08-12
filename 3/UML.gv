@@ -10,8 +10,23 @@ digraph DSA_ADT {
         label = "{DSAListNode|- _data: Object\l- _next: DSAListNode\l- _prev: DSAListNode\l}"
     ]
 
+    TestDSALinkedList [
+        label = "{TestDSALinkedList|+ testDSALinkedList(): None\l}"
+    ]
+
+    unittestTestCase [
+        label = "{unittest.TestCase}"
+    ]
+
     edge [
         arrowhead = "diamond"
     ]
-    DSALinkedList -> DSAListNode
+    DSAListNode -> DSALinkedList
+    DSALinkedList -> TestDSALinkedList [headport=e]
+    edge [
+        arrowhead = "empty"
+    ]
+    TestDSALinkedList -> unittestTestCase
+
+    rankdir=BT
 }
