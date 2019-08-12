@@ -1,0 +1,17 @@
+digraph DSA_ADT {
+    node [
+        shape = "record"
+    ]
+    DSALinkedList [
+        label = "{DSALinkedList|- _head: DSAListNode\l- _tail: DSAListNode\l- _insert(item: Object, before: DSAListNode): None\l- _remove(DSAListNode): Object\l- _find(Object): DSAListNode\l|+ isEmpty(): bool\l+ insertFirst(Object): None\l+ insertLast(Object): None\l+ insertBefore(item: Object, before: Object): None\l+ peekFirst(): Object\l+ peekLast(): Object\l+ removeFirst(): Object\l+ removeLast(): Object\l+ remove(Object): Object\l+ find(Object): bool\l}"
+    ]
+
+    DSAListNode [
+        label = "{DSAListNode|- _data: Object\l- _next: DSAListNode\l- _prev: DSAListNode\l}"
+    ]
+
+    edge [
+        arrowhead = "diamond"
+    ]
+    DSALinkedList -> DSAListNode
+}
