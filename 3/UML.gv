@@ -11,7 +11,7 @@ digraph DSA_ADT {
     ]
 
     TestDSALinkedList [
-        label = "{TestDSALinkedList|+ testDSALinkedList(): None\l}"
+        label = "{TestDSALinkedList|+ testConstructorIsEmpty(): None\l+ testSimpleInsertAndPeed(): None\l+ testIter(): None\l+ testFind(): None\l+ testAdvInsertDelete(): None\l}"
     ]
 
     unittestTestCase [
