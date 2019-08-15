@@ -48,18 +48,16 @@ class DSALinkedList:
 
     def __iter__(self):
         def forward_gen(iter):
-            temp = iter
-            while temp != None:
-                yield temp._data
-                temp = temp._next
+            while iter != None:
+                yield iter._data
+                iter = iter._next
         return forward_gen(self._head)
 
     def __reversed__(self):
         def reverse_gen(iter):
-            temp = iter
-            while temp != None:
-                yield temp._data
-                temp = temp._prev        
+            while iter != None:
+                yield iter._data
+                iter = iter._prev        
         return reverse_gen(self._tail)
 
     def isEmpty(self) -> bool:
