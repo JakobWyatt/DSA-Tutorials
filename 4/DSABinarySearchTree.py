@@ -1,8 +1,7 @@
 from typing import Generator
 import unittest
 
-class DSABinarySearchTree:
-    class DSATreeNode:
+class DSATreeNode:
         def __init__(self, key: object, value: object,
             left: 'DSATreeNode', right: 'DSATreeNode'):
             self._key = key
@@ -10,6 +9,7 @@ class DSABinarySearchTree:
             self._left = left
             self._right = right
 
+class DSABinarySearchTree:
     def __init__(self):
         self._root = None
 
@@ -20,17 +20,30 @@ class DSABinarySearchTree:
     def _findRec(key: object, cur: 'DSATreeNode') -> object:
         val = None
         if cur == None:
-            raise ValueError("Key: " + str(key) + " not found.")
+            raise ValueError(f"Key {key} not found.")
         elif key == cur._key:
             val = cur._value
         elif key < cur._key:
-            value = DSABinarySearchTree._findRec(key, cur._left)
+            val = DSABinarySearchTree._findRec(key, cur._left)
         else:
-            value = DSABinarySearchTree._findRec(key, cur._right)
+            val = DSABinarySearchTree._findRec(key, cur._right)
         return val
 
     def insert(self, key: object, value: object):
-        ...
+        self._root = DSABinarySearchTree._insertRec(key, value, self._root)
+
+    @staticmethod
+    def _insertRec(key: object, value: object, cur: 'DSATreeNode') -> 'DSATreeNode':
+        updateNode = cur
+        if cur == None:
+            updateNode = DSATreeNode(key, value, None, None)
+        elif cur._key == key:
+            raise ValueError(f"Key {key} already exists.")
+        elif key < cur._key:
+            cur._left = DSABinarySearchTree._insertRec(key, value, cur._left)
+        else:
+            cur._right = DSABinarySearchTree._insertRec(key, value, cur._right)
+        return updateNode
 
     def delete(self, key: object) -> object:
         ...
@@ -54,7 +67,12 @@ class DSABinarySearchTree:
         ...
 
     def preorder(self):
-        ...
+        def preorderGenerator(cur: 'DSATreeNode'):
+            if cur != None:
+                yield (cur._key, cur._value)
+                yield from preorderGenerator(cur._left)
+                yield from preorderGenerator(cur._right)
+        return preorderGenerator(self._root)
 
     def postorder(self):
         ...
@@ -62,29 +80,15 @@ class DSABinarySearchTree:
 class TestDSABinarySearchTree(unittest.TestCase):
     def testInsertFind(self):
         tree = DSABinarySearchTree()
-        tree.insert(1, "one")
-        tree.insert(3, "three")
-        tree.insert(2, "two")
-        tree.insert(4, "four")
-        tree.insert(-1, "-one")
-        tree.insert(0, "zero")
-        tree.insert(-2, "-two")
-        self.assertEqual(tree.find(1), "one")
-        self.assertEqual(tree.find(3), "three")
-        self.assertEqual(tree.find(2), "two")
-        self.assertEqual(tree.find(3), "three")
-        self.assertEqual(tree.find(-1), "-one")
-        self.assertEqual(tree.find(0), "zero")
-        self.assertEqual(tree.find(-2), "-two")
-        with self.assertRaises(ValueError):
-            tree.find(4)
-            tree.insert(1, "one")
-            tree.insert(3, "three")
-            tree.insert(2, "two")
-            tree.insert(4, "four")
-            tree.insert(-1, "-one")
-            tree.insert(0, "zero")
-            tree.insert(-2, "-two")
+        nodes = [(1, "one"), (3, "three"), (2, "two"), (4, "four"),
+            (-1, "-one"), (0, "zero"), (-2, "-two")]
+        for x in nodes:
+            tree.insert(*x)
+        for x in nodes:
+            self.assertEqual(tree.find(x[0]), x[1])
+        for x in nodes:
+            with self.assertRaises(ValueError):
+                tree.insert(x[0], x[1])
 
 if __name__ == "__main__":
     unittest.main()
