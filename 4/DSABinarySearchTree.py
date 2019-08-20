@@ -55,10 +55,16 @@ class DSABinarySearchTree:
         ...
 
     def min(self) -> (object, object):
-        ...
+        cur = self._root
+        while cur._left != None:
+            cur = cur._left
+        return (cur._key, cur._value)
 
     def max(self) -> (object, object):
-        ...
+        cur = self._root
+        while cur._right != None:
+            cur = cur._right
+        return (cur._key, cur._value)
 
     def balance(self) -> float:
         ...
@@ -118,6 +124,15 @@ class TestDSABinarySearchTree(unittest.TestCase):
             self.assertEqual(x1, x2)
         for x1, x2 in zip(postorder, tree.postorder()):
             self.assertEqual(x1, x2)
+
+    def testMinMax(self):
+        tree = DSABinarySearchTree()
+        nodes = [(1, "one"), (3, "three"), (2, "two"), (4, "four"),
+            (-1, "-one"), (0, "zero"), (-2, "-two")]
+        for x in nodes:
+            tree.insert(*x)
+        self.assertEqual(tree.min(), (-2, "-two"))
+        self.assertEqual(tree.max(), (4, "four"))
         
 if __name__ == "__main__":
     unittest.main()
