@@ -64,7 +64,12 @@ class DSABinarySearchTree:
         ...
 
     def inorder(self):
-        ...
+        def inorderGenerator(cur: 'DSATreeNode'):
+            if cur != None:
+                yield from inorderGenerator(cur._left)
+                yield (cur._key, cur._value)
+                yield from inorderGenerator(cur._right)
+        return inorderGenerator(self._root)
 
     def preorder(self):
         def preorderGenerator(cur: 'DSATreeNode'):
@@ -75,7 +80,12 @@ class DSABinarySearchTree:
         return preorderGenerator(self._root)
 
     def postorder(self):
-        ...
+        def postorderGenerator(cur: 'DSATreeNode'):
+            if cur != None:
+                yield from postorderGenerator(cur._left)
+                yield from postorderGenerator(cur._right)
+                yield (cur._key, cur._value)
+        return postorderGenerator(self._root)
 
 class TestDSABinarySearchTree(unittest.TestCase):
     def testInsertFind(self):
@@ -90,5 +100,24 @@ class TestDSABinarySearchTree(unittest.TestCase):
             with self.assertRaises(ValueError):
                 tree.insert(x[0], x[1])
 
+    def testTraversal(self):
+        tree = DSABinarySearchTree()
+        nodes = [(1, "one"), (3, "three"), (2, "two"), (4, "four"),
+            (-1, "-one"), (0, "zero"), (-2, "-two")]
+        preorder = [(1, "one"), (-1, "-one"), (-2, "-two"),
+            (0, "zero"), (3, "three"), (2, "two"), (4, "four")]
+        inorder = [(-2, "-two"), (-1, "-one"), (0, "zero"), (1, "one"),
+            (2, "two"), (3, "three"), (4, "four")]
+        postorder = [(-2, "-two"), (0, "zero"), (-1, "-one"),
+            (2, "two"), (4, "four"), (3, "three"), (1, "one")]
+        for x in nodes:
+            tree.insert(*x)
+        for x1, x2 in zip(preorder, tree.preorder()):
+            self.assertEqual(x1, x2)
+        for x1, x2 in zip(inorder, tree.inorder()):
+            self.assertEqual(x1, x2)
+        for x1, x2 in zip(postorder, tree.postorder()):
+            self.assertEqual(x1, x2)
+        
 if __name__ == "__main__":
     unittest.main()
