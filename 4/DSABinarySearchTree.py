@@ -52,7 +52,16 @@ class DSABinarySearchTree:
         ...
 
     def height(self) -> int:
-        ...
+        return DSABinarySearchTree._heightRec(self._root)
+
+    @staticmethod
+    def _heightRec(curNode: 'DSATreeNode') -> int:
+        depth = -1
+        if curNode != None:
+            depth = max(
+                DSABinarySearchTree._heightRec(curNode._left),
+                DSABinarySearchTree._heightRec(curNode._right)) + 1
+        return depth
 
     def min(self) -> (object, object):
         cur = self._root
@@ -133,6 +142,22 @@ class TestDSABinarySearchTree(unittest.TestCase):
             tree.insert(*x)
         self.assertEqual(tree.min(), (-2, "-two"))
         self.assertEqual(tree.max(), (4, "four"))
+
+    def testHeight(self):
+        tree = DSABinarySearchTree()
+        self.assertEqual(tree.height(), -1)
+        tree.insert(1, "one")
+        self.assertEqual(tree.height(), 0)
+        tree.insert(3, "three")
+        self.assertEqual(tree.height(), 1)
+        tree.insert(-1, "-one")
+        self.assertEqual(tree.height(), 1)
+        tree.insert(4, "four")
+        self.assertEqual(tree.height(), 2)
+        tree.insert(-2, "-two")
+        self.assertEqual(tree.height(), 2)
+        tree.insert(-3, "three")
+        self.assertEqual(tree.height(), 3) 
         
 if __name__ == "__main__":
     unittest.main()
