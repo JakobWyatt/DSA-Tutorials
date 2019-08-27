@@ -185,11 +185,30 @@ class TestDSABinarySearchTree(unittest.TestCase):
         self.assertEqual(tree.height(), 3) 
 
     def testDisplay(self):
+        from subprocess import run
+        from shutil import which
+        from tempfile import NamedTemporaryFile
+
         tree = DSABinarySearchTree()
         nodes = [(1, "one"), (3, "three"), (2, "two"), (4, "four"),
             (-1, "-one"), (0, "zero"), (-2, "-two")]
         for x in nodes:
             tree.insert(*x)
+        gv = tree.display()
+        self.assertEqual("", "")
+        # If we have the dot executable, display the tree.
+        if which("dot") == None:
+            print("This feature requires dot. Please install graphviz.")
+        else:
+            with NamedTemporaryFile(delete=False, suffix='.svg') as f:
+                run(["dot", "-Tsvg", "-o", f.name], input=gv.encode())
+                if which("xdg-open") != None:
+                    run(["xdg-open", f.name])
+                elif which("open") != None:
+                    run(["open", f.name])
+                else:
+                    print(f"Could not open the rendered image. "
+                        "Svg has been written to {f.name}")
         print(tree.display())
         
 if __name__ == "__main__":
