@@ -2,12 +2,20 @@ from typing import Generator
 import unittest
 
 class DSATreeNode:
-        def __init__(self, key: object, value: object,
-            left: 'DSATreeNode', right: 'DSATreeNode'):
-            self._key = key
-            self._value = value
-            self._left = left
-            self._right = right
+    def __init__(self, key: object, value: object,
+        left: 'DSATreeNode', right: 'DSATreeNode'):
+        self._key = key
+        self._value = value
+        self._left = left
+        self._right = right
+
+    @property
+    def key(self):
+        return self._key
+
+    @property
+    def value(self):
+        return self._value
 
 class DSABinarySearchTree:
     def __init__(self):
@@ -21,9 +29,9 @@ class DSABinarySearchTree:
         val = None
         if cur == None:
             raise ValueError(f"Key {key} not found.")
-        elif key == cur._key:
-            val = cur._value
-        elif key < cur._key:
+        elif key == cur.key:
+            val = cur.value
+        elif key < cur.key:
             val = DSABinarySearchTree._findRec(key, cur._left)
         else:
             val = DSABinarySearchTree._findRec(key, cur._right)
@@ -37,9 +45,9 @@ class DSABinarySearchTree:
         updateNode = cur
         if cur == None:
             updateNode = DSATreeNode(key, value, None, None)
-        elif cur._key == key:
+        elif cur.key == key:
             raise ValueError(f"Key {key} already exists.")
-        elif key < cur._key:
+        elif key < cur.key:
             cur._left = DSABinarySearchTree._insertRec(key, value, cur._left)
         else:
             cur._right = DSABinarySearchTree._insertRec(key, value, cur._right)
@@ -48,8 +56,22 @@ class DSABinarySearchTree:
     def delete(self, key: object) -> object:
         ...
 
-    def display(self):
-        ...
+    def display(self) -> str:
+        """
+        Generates a string that represents this tree.
+        This string can be compiled into a visual graph using
+        dot, as part of the package graphviz.
+        """
+        gv = "digraph {\n"
+        # Iterate through the tree with postorder.
+        # This means that any nodes referenced will already be printed.
+        for x in self.postorder():
+            gv += f"{x.key} [label=\"{x.key}: {x.value}\"]\n"
+            if x._left != None:
+                gv += f"{x.key} -> {x._left.key}\n"
+            if x._right != None:
+                gv += f"{x.key} -> {x._right.key}\n"
+        return gv + "}\n"
 
     def height(self) -> int:
         return DSABinarySearchTree._heightRec(self._root)
@@ -67,29 +89,29 @@ class DSABinarySearchTree:
         cur = self._root
         while cur._left != None:
             cur = cur._left
-        return (cur._key, cur._value)
+        return (cur.key, cur.value)
 
     def max(self) -> (object, object):
         cur = self._root
         while cur._right != None:
             cur = cur._right
-        return (cur._key, cur._value)
+        return (cur.key, cur.value)
 
     def balance(self) -> float:
         ...
 
-    def inorder(self):
+    def inorder(self) -> Generator['DSATreeNode', None, None]:
         def inorderGenerator(cur: 'DSATreeNode'):
             if cur != None:
                 yield from inorderGenerator(cur._left)
-                yield (cur._key, cur._value)
+                yield cur
                 yield from inorderGenerator(cur._right)
         return inorderGenerator(self._root)
 
     def preorder(self):
         def preorderGenerator(cur: 'DSATreeNode'):
             if cur != None:
-                yield (cur._key, cur._value)
+                yield cur
                 yield from preorderGenerator(cur._left)
                 yield from preorderGenerator(cur._right)
         return preorderGenerator(self._root)
@@ -99,7 +121,7 @@ class DSABinarySearchTree:
             if cur != None:
                 yield from postorderGenerator(cur._left)
                 yield from postorderGenerator(cur._right)
-                yield (cur._key, cur._value)
+                yield cur
         return postorderGenerator(self._root)
 
 class TestDSABinarySearchTree(unittest.TestCase):
@@ -127,11 +149,14 @@ class TestDSABinarySearchTree(unittest.TestCase):
             (2, "two"), (4, "four"), (3, "three"), (1, "one")]
         for x in nodes:
             tree.insert(*x)
-        for x1, x2 in zip(preorder, tree.preorder()):
+        for x1, x2 in zip(preorder,
+            [(x.key, x.value) for x in tree.preorder()]):
             self.assertEqual(x1, x2)
-        for x1, x2 in zip(inorder, tree.inorder()):
+        for x1, x2 in zip(inorder,
+            [(x.key, x.value) for x in tree.inorder()]):
             self.assertEqual(x1, x2)
-        for x1, x2 in zip(postorder, tree.postorder()):
+        for x1, x2 in zip(postorder,
+            [(x.key, x.value) for x in tree.postorder()]):
             self.assertEqual(x1, x2)
 
     def testMinMax(self):
@@ -158,6 +183,14 @@ class TestDSABinarySearchTree(unittest.TestCase):
         self.assertEqual(tree.height(), 2)
         tree.insert(-3, "three")
         self.assertEqual(tree.height(), 3) 
+
+    def testDisplay(self):
+        tree = DSABinarySearchTree()
+        nodes = [(1, "one"), (3, "three"), (2, "two"), (4, "four"),
+            (-1, "-one"), (0, "zero"), (-2, "-two")]
+        for x in nodes:
+            tree.insert(*x)
+        print(tree.display())
         
 if __name__ == "__main__":
     unittest.main()
