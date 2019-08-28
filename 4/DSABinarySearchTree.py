@@ -82,21 +82,37 @@ class DSABinarySearchTree:
                     print(f"Could not open the rendered image. "
                         "File written to {f.name}")
 
+    @staticmethod
+    def _uniqueNode(parent: str, isLeft: bool) -> str:
+        """
+        Creates a unique hidden graphviz node.
+        """
+        import uuid
+        import string
+        # Create valid, unique node identifier.
+        id = str(uuid.uuid4()).replace("-", "").lstrip(string.digits)
+        return (f"{id} [label=\"A\", shape=point]\n"
+            f"{parent}:{'sw' if isLeft else 'se'} -> {id}:n\n")
+
     def display(self) -> str:
         """
         Generates a string that represents this tree.
         This string can be compiled into a visual graph using
         dot, as part of the package graphviz.
         """
-        gv = "digraph {\n"
+        gv = "digraph {\nsplines=false\n"
         # Iterate through the tree with postorder.
         # This means that any nodes referenced will already be printed.
         for x in self.postorder():
             gv += f"{x.key} [label=\"{x.key}: {x.value}\"]\n"
             if x._left != None:
-                gv += f"{x.key} -> {x._left.key}\n"
+                gv += f"{x.key}:sw -> {x._left.key}:n\n"
+            else:
+                gv += DSABinarySearchTree._uniqueNode(x.key, True)
             if x._right != None:
-                gv += f"{x.key} -> {x._right.key}\n"
+                gv += f"{x.key}:se -> {x._right.key}:n\n"
+            else:
+                gv += DSABinarySearchTree._uniqueNode(x.key, False)
         return gv + "}\n"
 
     def height(self) -> int:
@@ -212,16 +228,12 @@ class TestDSABinarySearchTree(unittest.TestCase):
 
     def testDisplay(self):
         tree = DSABinarySearchTree()
-        nodes = [(1, "one"), (3, "three"), (2, "two"), (4, "four"),
-            (-1, "-one"), (0, "zero"), (-2, "-two")]
+        nodes = [(1, "one"), (3, "three"), (5, "five"), (4, "four"),
+            (-1, "-one"), (-2, "-two"), (0, "zero")]
         for x in nodes:
             tree.insert(*x)
-        gv = tree.display()
-        self.assertEqual("", "")
-        print(tree.display())
-
         try:
-            DSABinarySearchTree.render(gv)
+            DSABinarySearchTree.render(tree.display())
         except RuntimeError as err:
             print(str(err))
 
