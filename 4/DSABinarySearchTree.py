@@ -42,19 +42,54 @@ class DSABinarySearchTree:
 
     @staticmethod
     def _insertRec(key: object, value: object, cur: 'DSATreeNode') -> 'DSATreeNode':
-        updateNode = cur
         if cur == None:
-            updateNode = DSATreeNode(key, value, None, None)
+            cur = DSATreeNode(key, value, None, None)
         elif cur.key == key:
             raise ValueError(f"Key {key} already exists.")
         elif key < cur.key:
             cur._left = DSABinarySearchTree._insertRec(key, value, cur._left)
         else:
             cur._right = DSABinarySearchTree._insertRec(key, value, cur._right)
+        return cur
+
+    def delete(self, key: object):
+        self._root = DSABinarySearchTree._deleteRec(key, self._root)
+
+    @staticmethod
+    def _deleteRec(key: object, cur: 'DSATreeNode') -> 'DSATreeNode':
+        if cur == None:
+            raise ValueError(f"Key {key} not in tree.")
+        elif cur.key == key:
+            cur = DSABinarySearchTree._deleteNode(key, cur)
+        elif key < cur.key:
+            cur._left = DSABinarySearchTree._deleteRec(key, cur._left)
+        else:
+            cur._right = DSABinarySearchTree._deleteRec(key, cur._right)
+        return cur
+
+    @staticmethod
+    def _deleteNode(key: object, cur: 'DSATreeNode') -> 'DSATreeNode':
+        if cur._left == None and cur._right == None:
+            updateNode = None
+        elif cur._left == None:
+            updateNode = cur._right
+        elif cur._right == None:
+            updateNode = cur._left
+        else:
+            updateNode = DSABinarySearchTree._promoteSuccessor(cur._right)
+            if not (updateNode is cur._right):
+                updateNode._right = cur._right
+            updateNode._left = cur._left
         return updateNode
 
-    def delete(self, key: object) -> object:
-        ...
+    @staticmethod
+    def _promoteSuccessor(cur: 'DSATreeNode') -> 'DSATreeNode':
+        succ = cur
+        if cur._left != None:
+            succ = DSABinarySearchTree._promoteSuccessor(cur._left)
+            if succ is cur._left:
+                cur._left = succ._right
+        return succ
 
     @staticmethod
     def render(gv: str, *, type='svg'):
@@ -268,6 +303,22 @@ class TestDSABinarySearchTree(unittest.TestCase):
         self.assertAlmostEqual(tree.balance(), 0.5, places=3)
         tree.insert(4, "four")
         self.assertAlmostEqual(tree.balance(), 1/3, places=3)
+
+    def testDelete(self):
+        tree = DSABinarySearchTree()
+        nodes = [(1, "one"), (3, "three"), (2, "two"), (4, "four"),
+            (-1, "-one"), (0, "zero"), (-2, "-two")]
+        for x in nodes:
+            tree.insert(*x)
+        tree.delete(1)
+        for x1, x2 in zip(tree.postorder(), [-2, 0, -1, 4, 3, 2]):
+            self.assertEqual(x1.key, x2)
+        tree.delete(-1)
+        for x1, x2 in zip(tree.postorder(), [-2, 0, 4, 3, 2]):
+            self.assertEqual(x1.key, x2)
+        tree.delete(4)
+        for x1, x2 in zip(tree.postorder(), [-2, 0, 3, 2]):
+            self.assertEqual(x1.key, x2)
 
 if __name__ == "__main__":
     unittest.main()
