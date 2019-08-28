@@ -118,11 +118,18 @@ class DSABinarySearchTree:
     def height(self) -> int:
         return DSABinarySearchTree._heightRec(self._root)
 
+    def _minHeight(self) -> int:
+        return DSABinarySearchTree._heightRec(self._root, findMax=False)
+
     @staticmethod
-    def _heightRec(curNode: 'DSATreeNode') -> int:
+    def _heightRec(curNode: 'DSATreeNode', *, findMax=True) -> int:
+        """
+        Finds either the maximum or minimum height of a tree.
+        """
         depth = -1
+        picker = max if findMax else min
         if curNode != None:
-            depth = max(
+            depth = picker(
                 DSABinarySearchTree._heightRec(curNode._left),
                 DSABinarySearchTree._heightRec(curNode._right)) + 1
         return depth
@@ -140,7 +147,18 @@ class DSABinarySearchTree:
         return (cur.key, cur.value)
 
     def balance(self) -> float:
-        ...
+        """
+        Balance is a number between 0 and 1,
+        where 0 is the least balanced
+        and 1 is perfectly balanced.
+        This is calculated with the equation:
+        (min_height - max_height)/max_height + 1
+        """
+        max_height = self.height()
+        balance = 1.0
+        if max_height > 0:
+            balance = (self._minHeight() - max_height)/max_height + 1.0
+        return balance
 
     def inorder(self) -> Generator['DSATreeNode', None, None]:
         def inorderGenerator(cur: 'DSATreeNode'):
@@ -236,6 +254,20 @@ class TestDSABinarySearchTree(unittest.TestCase):
             DSABinarySearchTree.render(tree.display())
         except RuntimeError as err:
             print(str(err))
+
+    def testBalance(self):
+        tree = DSABinarySearchTree()
+        self.assertAlmostEqual(tree.balance(), 1.0, places=3)
+        tree.insert(1, "one")
+        self.assertAlmostEqual(tree.balance(), 1.0, places=3)
+        tree.insert(3, "three")
+        self.assertAlmostEqual(tree.balance(), 0.0, places=3)
+        tree.insert(-1, "-one")
+        self.assertAlmostEqual(tree.balance(), 1.0, places=3)
+        tree.insert(5, "five")
+        self.assertAlmostEqual(tree.balance(), 0.5, places=3)
+        tree.insert(4, "four")
+        self.assertAlmostEqual(tree.balance(), 1/3, places=3)
 
 if __name__ == "__main__":
     unittest.main()
