@@ -56,6 +56,32 @@ class DSABinarySearchTree:
     def delete(self, key: object) -> object:
         ...
 
+    @staticmethod
+    def render(gv: str, *, type='svg'):
+        """
+        Renders a graphviz DOT file.
+        Prints the render result to a temporary output file.
+        Opens this file using the default program assigned
+        to the given extension.
+        """
+        from subprocess import run
+        from shutil import which
+        from tempfile import NamedTemporaryFile
+
+        if which("dot") == None:
+            raise RuntimeError("Rendering DOT files requires "
+                "graphviz to be installed.")
+        else:
+            with NamedTemporaryFile(delete=False, suffix=f'.{type}') as f:
+                run(["dot", f"-T{type}", "-o", f.name], input=gv.encode())
+                if which("xdg-open") != None:
+                    run(["xdg-open", f.name])
+                elif which("open") != None:
+                    run(["open", f.name])
+                else:
+                    print(f"Could not open the rendered image. "
+                        "File written to {f.name}")
+
     def display(self) -> str:
         """
         Generates a string that represents this tree.
@@ -185,10 +211,6 @@ class TestDSABinarySearchTree(unittest.TestCase):
         self.assertEqual(tree.height(), 3) 
 
     def testDisplay(self):
-        from subprocess import run
-        from shutil import which
-        from tempfile import NamedTemporaryFile
-
         tree = DSABinarySearchTree()
         nodes = [(1, "one"), (3, "three"), (2, "two"), (4, "four"),
             (-1, "-one"), (0, "zero"), (-2, "-two")]
@@ -196,20 +218,12 @@ class TestDSABinarySearchTree(unittest.TestCase):
             tree.insert(*x)
         gv = tree.display()
         self.assertEqual("", "")
-        # If we have the dot executable, display the tree.
-        if which("dot") == None:
-            print("This feature requires dot. Please install graphviz.")
-        else:
-            with NamedTemporaryFile(delete=False, suffix='.svg') as f:
-                run(["dot", "-Tsvg", "-o", f.name], input=gv.encode())
-                if which("xdg-open") != None:
-                    run(["xdg-open", f.name])
-                elif which("open") != None:
-                    run(["open", f.name])
-                else:
-                    print(f"Could not open the rendered image. "
-                        "Svg has been written to {f.name}")
         print(tree.display())
-        
+
+        try:
+            DSABinarySearchTree.render(gv)
+        except RuntimeError as err:
+            print(str(err))
+
 if __name__ == "__main__":
     unittest.main()
