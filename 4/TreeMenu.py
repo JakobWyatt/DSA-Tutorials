@@ -47,7 +47,27 @@ def displayMenu(tree: DSABinarySearchTree) -> DSABinarySearchTree:
     return tree
 
 def writeCsvMenu(tree: DSABinarySearchTree) -> DSABinarySearchTree:
-    ...
+    print("Traversal method:")
+    options = {
+        1: (tree.preorder, "Preorder"),
+        2: (tree.inorder, "Inorder"),
+        3: (tree.postorder, "Postorder")
+    }
+    for k, v in options.items():
+        print(f"{k}: {v[1]}")
+    try:
+        traversal = options[int(input())][0]
+    except (ValueError, KeyError):
+        print("Please enter a valid menu option.")
+    print("File name: ")
+    try:
+        with open(str(input()), 'w') as f:
+            for x in traversal():
+                f.write("{key},{value}\n"
+                    .format(key=x.key, value=",".join(x.value)))
+    except IOError:
+        print("Error occured while writing the file.")
+    return tree
 
 def writeSerializedMenu(tree: DSABinarySearchTree) -> DSABinarySearchTree:
     ...
