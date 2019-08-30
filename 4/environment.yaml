@@ -1,0 +1,7 @@
+name: dsa-prac4
+dependencies:
+  - python=3.7
+  - sphinx
+  - pycodestyle
+  - numpy
+  - graphviz
