@@ -1,9 +1,10 @@
 from typing import Generator
 import unittest
 
+
 class DSATreeNode:
     def __init__(self, key: object, value: object,
-        left: 'DSATreeNode', right: 'DSATreeNode'):
+                 left: 'DSATreeNode', right: 'DSATreeNode'):
         self._key = key
         self._value = value
         self._left = left
@@ -17,6 +18,7 @@ class DSATreeNode:
     def value(self):
         return self._value
 
+
 class DSABinarySearchTree:
     def __init__(self):
         self._root = None
@@ -27,7 +29,7 @@ class DSABinarySearchTree:
     @staticmethod
     def _findRec(key: object, cur: 'DSATreeNode') -> object:
         val = None
-        if cur == None:
+        if cur is None:
             raise ValueError(f"Key {key} not found.")
         elif key == cur.key:
             val = cur.value
@@ -41,8 +43,9 @@ class DSABinarySearchTree:
         self._root = DSABinarySearchTree._insertRec(key, value, self._root)
 
     @staticmethod
-    def _insertRec(key: object, value: object, cur: 'DSATreeNode') -> 'DSATreeNode':
-        if cur == None:
+    def _insertRec(key: object, value: object,
+                   cur: 'DSATreeNode') -> 'DSATreeNode':
+        if cur is None:
             cur = DSATreeNode(key, value, None, None)
         elif cur.key == key:
             raise ValueError(f"Key {key} already exists.")
@@ -57,7 +60,7 @@ class DSABinarySearchTree:
 
     @staticmethod
     def _deleteRec(key: object, cur: 'DSATreeNode') -> 'DSATreeNode':
-        if cur == None:
+        if cur is None:
             raise ValueError(f"Key {key} not in tree.")
         elif cur.key == key:
             cur = DSABinarySearchTree._deleteNode(key, cur)
@@ -69,15 +72,15 @@ class DSABinarySearchTree:
 
     @staticmethod
     def _deleteNode(key: object, cur: 'DSATreeNode') -> 'DSATreeNode':
-        if cur._left == None and cur._right == None:
+        if cur._left is None and cur._right is None:
             updateNode = None
-        elif cur._left == None:
+        elif cur._left is None:
             updateNode = cur._right
-        elif cur._right == None:
+        elif cur._right is None:
             updateNode = cur._left
         else:
             updateNode = DSABinarySearchTree._promoteSuccessor(cur._right)
-            if not (updateNode is cur._right):
+            if updateNode is not cur._right:
                 updateNode._right = cur._right
             updateNode._left = cur._left
         return updateNode
@@ -85,9 +88,12 @@ class DSABinarySearchTree:
     @staticmethod
     def _promoteSuccessor(cur: 'DSATreeNode') -> 'DSATreeNode':
         succ = cur
-        if cur._left != None:
+        if cur._left is not None:
             succ = DSABinarySearchTree._promoteSuccessor(cur._left)
             if succ is cur._left:
+                # Perform adoption.
+                # If succ._right = None, then cur._left is a leaf node,
+                # and is updated to reflect this.
                 cur._left = succ._right
         return succ
 
@@ -103,19 +109,21 @@ class DSABinarySearchTree:
         from shutil import which
         from tempfile import NamedTemporaryFile
 
-        if which("dot") == None:
+        if which("dot") is None:
             raise RuntimeError("Rendering DOT files requires "
-                "graphviz to be installed.")
+                               "graphviz to be installed.")
         else:
             with NamedTemporaryFile(delete=False, suffix=f'.{type}') as f:
+                # Render the graph.
                 run(["dot", f"-T{type}", "-o", f.name], input=gv.encode())
-                if which("xdg-open") != None:
+                # Attempt to display the graph.
+                if which("xdg-open") is not None:
                     run(["xdg-open", f.name])
-                elif which("open") != None:
+                elif which("open") is not None:
                     run(["open", f.name])
                 else:
-                    print(f"Could not open the rendered image. "
-                        "File written to {f.name}")
+                    print("Could not open the rendered image. "
+                          f"File written to {f.name}")
 
     @staticmethod
     def _uniqueNode(parent: str, isLeft: bool) -> str:
@@ -124,10 +132,10 @@ class DSABinarySearchTree:
         """
         import uuid
         import string
-        # Create valid, unique node identifier.
+        # Create valid, unique node identifier by modifying a uuid.
         id = str(uuid.uuid4()).replace("-", "").lstrip(string.digits)
         return (f"{id} [label=\"A\", shape=point]\n"
-            f"{parent}:{'sw' if isLeft else 'se'} -> {id}:n\n")
+                f"{parent}:{'sw' if isLeft else 'se'} -> {id}:n\n")
 
     def display(self) -> str:
         """
@@ -140,11 +148,11 @@ class DSABinarySearchTree:
         # This means that any nodes referenced will already be printed.
         for x in self.postorder():
             gv += f"{x.key} [label=\"{x.key}: {x.value}\"]\n"
-            if x._left != None:
+            if x._left is not None:
                 gv += f"{x.key}:sw -> {x._left.key}:n\n"
             else:
                 gv += DSABinarySearchTree._uniqueNode(x.key, True)
-            if x._right != None:
+            if x._right is not None:
                 gv += f"{x.key}:se -> {x._right.key}:n\n"
             else:
                 gv += DSABinarySearchTree._uniqueNode(x.key, False)
@@ -163,7 +171,7 @@ class DSABinarySearchTree:
         """
         depth = -1
         picker = max if findMax else min
-        if curNode != None:
+        if curNode is not None:
             depth = picker(
                 DSABinarySearchTree._heightRec(curNode._left),
                 DSABinarySearchTree._heightRec(curNode._right)) + 1
@@ -171,13 +179,13 @@ class DSABinarySearchTree:
 
     def min(self) -> (object, object):
         cur = self._root
-        while cur._left != None:
+        while cur._left is not None:
             cur = cur._left
         return (cur.key, cur.value)
 
     def max(self) -> (object, object):
         cur = self._root
-        while cur._right != None:
+        while cur._right is not None:
             cur = cur._right
         return (cur.key, cur.value)
 
@@ -197,7 +205,7 @@ class DSABinarySearchTree:
 
     def inorder(self) -> Generator['DSATreeNode', None, None]:
         def inorderGenerator(cur: 'DSATreeNode'):
-            if cur != None:
+            if cur is not None:
                 yield from inorderGenerator(cur._left)
                 yield cur
                 yield from inorderGenerator(cur._right)
@@ -205,7 +213,7 @@ class DSABinarySearchTree:
 
     def preorder(self):
         def preorderGenerator(cur: 'DSATreeNode'):
-            if cur != None:
+            if cur is not None:
                 yield cur
                 yield from preorderGenerator(cur._left)
                 yield from preorderGenerator(cur._right)
@@ -213,17 +221,18 @@ class DSABinarySearchTree:
 
     def postorder(self):
         def postorderGenerator(cur: 'DSATreeNode'):
-            if cur != None:
+            if cur is not None:
                 yield from postorderGenerator(cur._left)
                 yield from postorderGenerator(cur._right)
                 yield cur
         return postorderGenerator(self._root)
 
+
 class TestDSABinarySearchTree(unittest.TestCase):
     def testInsertFind(self):
         tree = DSABinarySearchTree()
         nodes = [(1, "one"), (3, "three"), (2, "two"), (4, "four"),
-            (-1, "-one"), (0, "zero"), (-2, "-two")]
+                 (-1, "-one"), (0, "zero"), (-2, "-two")]
         for x in nodes:
             tree.insert(*x)
         for x in nodes:
@@ -235,29 +244,29 @@ class TestDSABinarySearchTree(unittest.TestCase):
     def testTraversal(self):
         tree = DSABinarySearchTree()
         nodes = [(1, "one"), (3, "three"), (2, "two"), (4, "four"),
-            (-1, "-one"), (0, "zero"), (-2, "-two")]
+                 (-1, "-one"), (0, "zero"), (-2, "-two")]
         preorder = [(1, "one"), (-1, "-one"), (-2, "-two"),
-            (0, "zero"), (3, "three"), (2, "two"), (4, "four")]
+                    (0, "zero"), (3, "three"), (2, "two"), (4, "four")]
         inorder = [(-2, "-two"), (-1, "-one"), (0, "zero"), (1, "one"),
-            (2, "two"), (3, "three"), (4, "four")]
+                   (2, "two"), (3, "three"), (4, "four")]
         postorder = [(-2, "-two"), (0, "zero"), (-1, "-one"),
-            (2, "two"), (4, "four"), (3, "three"), (1, "one")]
+                     (2, "two"), (4, "four"), (3, "three"), (1, "one")]
         for x in nodes:
             tree.insert(*x)
         for x1, x2 in zip(preorder,
-            [(x.key, x.value) for x in tree.preorder()]):
+                          [(x.key, x.value) for x in tree.preorder()]):
             self.assertEqual(x1, x2)
         for x1, x2 in zip(inorder,
-            [(x.key, x.value) for x in tree.inorder()]):
+                          [(x.key, x.value) for x in tree.inorder()]):
             self.assertEqual(x1, x2)
         for x1, x2 in zip(postorder,
-            [(x.key, x.value) for x in tree.postorder()]):
+                          [(x.key, x.value) for x in tree.postorder()]):
             self.assertEqual(x1, x2)
 
     def testMinMax(self):
         tree = DSABinarySearchTree()
         nodes = [(1, "one"), (3, "three"), (2, "two"), (4, "four"),
-            (-1, "-one"), (0, "zero"), (-2, "-two")]
+                 (-1, "-one"), (0, "zero"), (-2, "-two")]
         for x in nodes:
             tree.insert(*x)
         self.assertEqual(tree.min(), (-2, "-two"))
@@ -277,12 +286,12 @@ class TestDSABinarySearchTree(unittest.TestCase):
         tree.insert(-2, "-two")
         self.assertEqual(tree.height(), 2)
         tree.insert(-3, "three")
-        self.assertEqual(tree.height(), 3) 
+        self.assertEqual(tree.height(), 3)
 
     def testDisplay(self):
         tree = DSABinarySearchTree()
         nodes = [(1, "one"), (3, "three"), (5, "five"), (4, "four"),
-            (-1, "-one"), (-2, "-two"), (0, "zero")]
+                 (-1, "-one"), (-2, "-two"), (0, "zero")]
         for x in nodes:
             tree.insert(*x)
         try:
@@ -307,7 +316,7 @@ class TestDSABinarySearchTree(unittest.TestCase):
     def testDelete(self):
         tree = DSABinarySearchTree()
         nodes = [(1, "one"), (3, "three"), (2, "two"), (4, "four"),
-            (-1, "-one"), (0, "zero"), (-2, "-two")]
+                 (-1, "-one"), (0, "zero"), (-2, "-two")]
         for x in nodes:
             tree.insert(*x)
         tree.delete(1)
@@ -319,6 +328,7 @@ class TestDSABinarySearchTree(unittest.TestCase):
         tree.delete(4)
         for x1, x2 in zip(tree.postorder(), [-2, 0, 3, 2]):
             self.assertEqual(x1.key, x2)
+
 
 if __name__ == "__main__":
     unittest.main()
