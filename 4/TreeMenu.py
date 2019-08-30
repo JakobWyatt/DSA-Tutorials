@@ -1,4 +1,5 @@
 from DSABinarySearchTree import DSABinarySearchTree
+import pickle
 
 def treeMenu():
     options = {
@@ -37,13 +38,26 @@ def readCsvMenu(tree: DSABinarySearchTree) -> DSABinarySearchTree:
                     print("Key already exists.")
     except FileNotFoundError:
         print("File does not exist.")
+    except IOError:
+        print("File could not be read.")
     return tree
 
 def readSerializedMenu(tree: DSABinarySearchTree) -> DSABinarySearchTree:
-    ...
+    print("File name: ")
+    try:
+        with open(str(input()), 'rb') as f:
+            tree = pickle.load(f)
+    except FileNotFoundError:
+        print("File does not exist.")
+    except IOError:
+        print("File could not be read.")
+    return tree
 
 def displayMenu(tree: DSABinarySearchTree) -> DSABinarySearchTree:
-    DSABinarySearchTree.render(tree.display(), type='pdf')
+    try:
+        DSABinarySearchTree.render(tree.display(), type='pdf')
+    except RuntimeError as err:
+        print(str(err))
     return tree
 
 def writeCsvMenu(tree: DSABinarySearchTree) -> DSABinarySearchTree:
@@ -57,20 +71,25 @@ def writeCsvMenu(tree: DSABinarySearchTree) -> DSABinarySearchTree:
         print(f"{k}: {v[1]}")
     try:
         traversal = options[int(input())][0]
-    except (ValueError, KeyError):
-        print("Please enter a valid menu option.")
-    print("File name: ")
-    try:
+        print("File name: ")
         with open(str(input()), 'w') as f:
             for x in traversal():
-                f.write("{key},{value}\n"
-                    .format(key=x.key, value=",".join(x.value)))
+                f.write("{key}{value}\n"
+                    .format(key=x.key, value="".join([f',{v}' for v in x.value])))
+    except (ValueError, KeyError):
+        print("Please enter a valid menu option.")
     except IOError:
         print("Error occured while writing the file.")
     return tree
 
 def writeSerializedMenu(tree: DSABinarySearchTree) -> DSABinarySearchTree:
-    ...
+    print("File name: ")
+    try:
+        with open(str(input()), 'wb') as f:
+            pickle.dump(tree, f)
+    except IOError:
+        print("Error occured while writing the file.")
+    return tree
 
 if __name__ == "__main__":
     treeMenu()
