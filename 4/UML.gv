@@ -1,0 +1,62 @@
+digraph DSA_Tree {
+    node [
+        shape = "record"
+    ]
+
+    DSABinarySearchTree [
+        label = <{DSABinarySearchTree
+        <br align="left"/>|- _root: DSATreeNode
+        <br align="left"/><u>- _findRec(key: Object, cur: DSATreeNode): Object</u>
+        <br align="left"/><u>- _insertRec(key: Object, value: Object, cur: DSATreeNode): DSATreeNode</u>
+        <br align="left"/><u>- _deleteRec(key: Object, cur: DSATreeNode): DSATreeNode</u>
+        <br align="left"/><u>- _deleteNode(key: Object, cur: DSATreeNode): DSATreeNode</u>
+        <br align="left"/><u>- _promoteSuccessor(cur: DSATreeNode): DSATreeNode</u>
+        <br align="left"/><u>- _uniqueNode(parent: str, isLeft: bool): str</u>
+        <br align="left"/>- _minHeight(): int
+        <br align="left"/><u>- _heightRec(curNode: DSATreeNode, findMax: bool): int</u>
+        <br align="left"/>|+ find(key: Object) : Object
+        <br align="left"/>+ insert(key: Object, value: Object) : None
+        <br align="left"/>+ delete(key: Object) : None
+        <br align="left"/><u>+ render(gv: str, type: str) : None</u>
+        <br align="left"/>+ display() : str
+        <br align="left"/>+ height() : int
+        <br align="left"/>+ min(): (Object, Object)
+        <br align="left"/>+ max(): (Object, Object)
+        <br align="left"/>+ balance(): float
+        <br align="left"/>+ inorder(): Generator[DSATreeNode, None, None]
+        <br align="left"/>+ preorder(): Generator[DSATreeNode, None, None]
+        <br align="left"/>+ postorder(): Generator[DSATreeNode, None, None]
+        <br align="left"/>}>
+    ]
+
+    DSATreeNode [
+        label = "{DSATreeNode
+        |- _key: Object
+        \l- _value: Object
+        \l- _left: DSATreeNode
+        \l- _right: DSATreeNode
+        |+ key: Object
+        \l+ value: Object\l}"
+    ]
+
+    TestDSABinarySearchTree [
+        label = "{TestDSABinarySearchTree
+        |+ testInsertFind(): None
+        \l+ testTraversal(): None
+        \l+ testMinMax(): None
+        \l+ testHeight(): None
+        \l+ testDisplay(): None
+        \l+ testBalance(): None
+        \l+ testDelete(): None\l}"
+    ]
+
+    unittestTestCase [
+        label = "{unittest.TestCase}"
+    ]
+
+    TestDSABinarySearchTree -> DSABinarySearchTree [arrowhead = "vee"]
+    DSATreeNode -> DSABinarySearchTree [arrowhead = "diamond"]
+    TestDSABinarySearchTree -> unittestTestCase [arrowhead = "onormal"]
+
+    rankdir=BT
+}
