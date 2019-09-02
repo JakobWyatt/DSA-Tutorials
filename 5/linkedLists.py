@@ -89,3 +89,6 @@ class DSALinkedList:
 
     def find(self, item: object) -> bool:
         return self._find(item) != None
+
+    def count(self) -> int:
+        return sum(1 for _ in self)
