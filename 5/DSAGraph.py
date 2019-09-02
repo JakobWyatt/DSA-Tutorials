@@ -42,37 +42,53 @@ class DSAGraphVertex:
     def gv(self) -> str:
         return "".join([f"{self.label} -- {x.label}\n" for x in self.adjacent])
 
+    def __eq__(self, other: 'DSAGraphVertex') -> bool:
+        return self.label == other.label
+
 
 class DSAGraph:
     def __init__(self):
-        ...
+        self._verticies = DSALinkedList()
 
     def addVertex(self, label: object, value: object) -> None:
-        ...
+        """
+        Does not check for duplicates.
+        """
+        self._verticies.insertFirst(DSAGraphVertex(label, value))
 
     def addEdge(self, label1: object, label2: object) -> None:
-        ...
+        """
+        Assumes that the nodes already exist.
+        """
+        vertex1 = self.getVertex(label1)
+        vertex2 = self.getVertex(label2)
+        vertex1.addEdge(vertex2)
+        vertex2.addEdge(vertex1)
 
     def hasVertex(self, label: object) -> bool:
-        ...
+        return self._verticies.find(DSAGraphVertex(label, None))
 
     def getVertexCount(self) -> int:
-        ...
+        return self._verticies.count
 
     def getEdgeCount(self) -> int:
-        ...
+        """
+        Assumes an undirected graph.
+        """
+        return sum(x.adjacent.count for x in self._verticies)/2
 
     def getVertex(self, label: object) -> 'DSAGraphVertex':
-        ...
+        # Use list internals for efficiency
+        return self._verticies._find(DSAGraphVertex(label, None))._data
 
     def getAdjacent(self, label: object) -> 'DSALinkedList':
-        ...
+        return self.getVertex(label).adjacent
 
     def isAdjacent(self, label1: object, label2: object) -> bool:
-        ...
+        return self.getVertex(label1).adjacent.find(DSAGraphVertex(label2))
 
     def displayAsList(self) -> str:
-        ...
+        return "".join(f"{x}\n" for x in self._verticies)
 
     def displayAsMatrix(self) -> str:
         ...
