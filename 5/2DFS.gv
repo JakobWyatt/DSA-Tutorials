@@ -1,0 +1,11 @@
+graph {
+    A -- B [label="35"]
+    B -- E [label="35"]
+    E -- D [label="30"]
+    D -- F [label="35"]
+    F -- C [label="30"]
+    F -- I [label="45"]
+    I -- H [label="12"]
+    H -- G [label="15"]
+    H -- J [label="50"]
+}
