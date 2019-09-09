@@ -75,7 +75,7 @@ class DSAGraph:
         """
         Assumes an undirected graph.
         """
-        return sum(x.adjacent.count for x in self._verticies)/2
+        return sum(x.adjacent.count() for x in self._verticies) // 2
 
     def getVertex(self, label: object) -> 'DSAGraphVertex':
         # Use list internals for efficiency
@@ -85,7 +85,7 @@ class DSAGraph:
         return self.getVertex(label).adjacent
 
     def isAdjacent(self, label1: object, label2: object) -> bool:
-        return self.getVertex(label1).adjacent.find(DSAGraphVertex(label2))
+        return self.getVertex(label1).adjacent.find(DSAGraphVertex(label2, None))
 
     def displayAsList(self) -> str:
         return "".join(f"{x}\n" for x in self._verticies)
@@ -124,6 +124,32 @@ class TestDSAGraph(unittest.TestCase):
         self.assertEqual(1, graph.getVertexCount())
         graph.addVertex("world", "hello")
         self.assertEqual(2, graph.getVertexCount())
+
+    def testAdjacentEdge(self):
+        graph = DSAGraph()
+        graph.addVertex("hello", "world")
+        graph.addVertex("world", "hello")
+        graph.addVertex("yeah", "boi")
+        graph.addEdge("hello", "world")
+        self.assertTrue(graph.isAdjacent("hello", "world"))
+        self.assertFalse(graph.isAdjacent("yeah", "world"))
+        graph.addEdge("hello", "yeah")
+        for x1, x2 in zip(graph.getAdjacent("hello"), ["yeah", "world"]):
+            self.assertEqual(x1.label, x2)
+
+    def testEdgeCount(self):
+        graph = DSAGraph()
+        self.assertEqual(graph.getEdgeCount(), 0)
+        graph.addVertex("hello", "world")
+        graph.addVertex("world", "hello")
+        graph.addVertex("yeah", "boi")
+        self.assertEqual(graph.getEdgeCount(), 0)
+        graph.addEdge("hello", "world")
+        self.assertEqual(graph.getEdgeCount(), 1)
+        graph.addEdge("world", "hello")
+        self.assertEqual(graph.getEdgeCount(), 2)
+        graph.addEdge("yeah", "world")
+        self.assertEqual(graph.getEdgeCount(), 3)
 
 
 if __name__ == "__main__":
