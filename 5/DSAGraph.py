@@ -1,7 +1,7 @@
 import unittest
 import typing
 
-import linkedLists
+from linkedLists import DSALinkedList
 
 
 class DSAGraphVertex:
@@ -69,7 +69,7 @@ class DSAGraph:
         return self._verticies.find(DSAGraphVertex(label, None))
 
     def getVertexCount(self) -> int:
-        return self._verticies.count
+        return self._verticies.count()
 
     def getEdgeCount(self) -> int:
         """
@@ -108,7 +108,22 @@ class DSAGraph:
 
 
 class TestDSAGraph(unittest.TestCase):
-    ...
+    def testAddVertex(self):
+        graph = DSAGraph()
+        self.assertFalse(graph.hasVertex("hello"))
+        graph.addVertex("hello", "world")
+        self.assertTrue(graph.hasVertex("hello"))
+        self.assertFalse(graph.hasVertex("world"))
+        graph.addVertex("world", "hello")
+        self.assertTrue(graph.hasVertex("world"))
+
+    def testVertexCount(self):
+        graph = DSAGraph()
+        self.assertEqual(0, graph.getVertexCount())
+        graph.addVertex("hello", "world")
+        self.assertEqual(1, graph.getVertexCount())
+        graph.addVertex("world", "hello")
+        self.assertEqual(2, graph.getVertexCount())
 
 
 if __name__ == "__main__":
