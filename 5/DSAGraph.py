@@ -144,6 +144,19 @@ class DSAGraph:
                     print("Could not open the rendered image. "
                           f"File written to {f.name}")
 
+    @staticmethod
+    def readGraphFile(filename: str) -> 'DSAGraph':
+        graph = DSAGraph()
+        with open(filename, "r") as f:
+            for l in f:
+                l1, l2 = l.rstrip("\n").split(" ")
+                if not graph.hasVertex(l1):
+                    graph.addVertex(l1, None)
+                if not graph.hasVertex(l2):
+                    graph.addVertex(l2, None)
+                graph.addEdge(l1, l2)
+        return graph
+
     def depthFirstSearch() -> 'DSAGraph':
         ...
 
@@ -246,6 +259,27 @@ class TestDSAGraph(unittest.TestCase):
                          "hello -- world\n"
                          "}\n"))
 
+    def testReadGraphFile(self):
+        readGraph = DSAGraph.readGraphFile("prac6_1.al")
+        graph = DSAGraph()
+        graph.addVertex("A", None)
+        graph.addVertex("B", None)
+        graph.addVertex("E", None)
+        graph.addVertex("D", None)
+        graph.addVertex("C", None)
+        graph.addVertex("F", None)
+        graph.addVertex("G", None)
+        graph.addEdge("A", "B")
+        graph.addEdge("A", "E")
+        graph.addEdge("A", "D")
+        graph.addEdge("A", "C")
+        graph.addEdge("B", "E")
+        graph.addEdge("C", "D")
+        graph.addEdge("D", "F")
+        graph.addEdge("E", "F")
+        graph.addEdge("E", "G")
+        graph.addEdge("F", "G")
+        self.assertEqual(graph.displayAsMatrix(), readGraph.displayAsMatrix())
 
 if __name__ == "__main__":
     unittest.main()
