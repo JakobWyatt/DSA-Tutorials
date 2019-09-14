@@ -114,11 +114,35 @@ class DSAGraph:
         return mat
 
     def display(self) -> str:
-        ...
+        return "strict graph {\n" + "".join([x.gv() for x in self._verticies]) + "}\n"
 
     @staticmethod
     def render(gv: str, *, type='svg'):
-        ...
+        """
+        Renders a graphviz DOT file.
+        Prints the render result to a temporary output file.
+        Opens this file using the default program assigned
+        to the given extension.
+        """
+        from subprocess import run
+        from shutil import which
+        from tempfile import NamedTemporaryFile
+
+        if which("dot") is None:
+            raise RuntimeError("Rendering DOT files requires "
+                               "graphviz to be installed.")
+        else:
+            with NamedTemporaryFile(delete=False, suffix=f'.{type}') as f:
+                # Render the graph.
+                run(["fdp", f"-T{type}", "-o", f.name], input=gv.encode())
+                # Attempt to display the graph.
+                if which("xdg-open") is not None:
+                    run(["xdg-open", f.name])
+                elif which("open") is not None:
+                    run(["open", f.name])
+                else:
+                    print("Could not open the rendered image. "
+                          f"File written to {f.name}")
 
     def depthFirstSearch() -> 'DSAGraph':
         ...
@@ -201,6 +225,27 @@ class TestDSAGraph(unittest.TestCase):
                          "yeah  0     1     1\n"
                          "world 1     0     0\n"
                          "hello 1     0     0\n"))
+
+    def testDisplay(self):
+        graph = DSAGraph()
+        graph.addVertex("hello", "world")
+        graph.addVertex("world", "hello")
+        graph.addVertex("yeah", "boi")
+
+        graph.addEdge("hello", "world")
+        graph.addEdge("yeah", "hello")
+        graph.addEdge("yeah", "world")
+
+        self.assertEqual(graph.display(),
+                        ("strict graph {\n"
+                         "yeah -- world\n"
+                         "yeah -- hello\n"
+                         "world -- yeah\n"
+                         "world -- hello\n"
+                         "hello -- yeah\n"
+                         "hello -- world\n"
+                         "}\n"))
+
 
 if __name__ == "__main__":
     unittest.main()
