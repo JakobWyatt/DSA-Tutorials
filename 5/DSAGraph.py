@@ -3,6 +3,8 @@ import typing
 import numpy as np
 
 from linkedLists import DSALinkedList
+from DSAListQueue import DSAListQueue
+from DSAListStack import DSAListStack
 
 
 class DSAGraphVertex:
@@ -157,11 +159,48 @@ class DSAGraph:
                 graph.addEdge(l1, l2)
         return graph
 
-    def depthFirstSearch() -> 'DSAGraph':
-        ...
+    def depthFirstSearch(self) -> 'DSAGraph':
+        tree = DSAGraph()
+        stack = DSAListStack()
+        for v in self._verticies:
+            v.visited = False
 
-    def breadthFirstSearch() -> 'DSAGraph':
-        ...
+        if self._verticies._head is not None:
+            head = self._verticies.peekFirst()
+            head.visited = True
+            tree.addVertex(head.label, head.value)
+            stack.push(head)
+            while not stack.isEmpty():
+                node = next((x for x in stack.top().adjacent if not x.visited), None)
+                if node is None:
+                    stack.pop()
+                else:
+                    node.visited = True
+                    tree.addVertex(node.label, node.value)
+                    tree.addEdge(node.label, stack.top().label)
+                    stack.push(node)
+        return tree
+
+    def breadthFirstSearch(self) -> 'DSAGraph':
+        tree = DSAGraph()
+        queue = DSAListQueue()
+        for v in self._verticies:
+            v.visited = False
+        
+        if self._verticies._head is not None:
+            head = self._verticies.peekFirst()
+            head.visited = True
+            tree.addVertex(head.label, head.value)
+            queue.enqueue(head)
+            while not queue.isEmpty():
+                centre = queue.dequeue()
+                for v in centre.adjacent:
+                    if not v.visited:
+                        queue.enqueue(v)
+                        tree.addVertex(v.label, v.value)
+                        tree.addEdge(centre.label, v.label)
+                        v.visited = True
+        return tree
 
 
 class TestDSAGraph(unittest.TestCase):
@@ -280,6 +319,12 @@ class TestDSAGraph(unittest.TestCase):
         graph.addEdge("E", "G")
         graph.addEdge("F", "G")
         self.assertEqual(graph.displayAsMatrix(), readGraph.displayAsMatrix())
+
+    def testBFSandDFS(self):
+        graph = DSAGraph.readGraphFile("prac6_1.al")
+        DSAGraph.render(graph.display())
+        DSAGraph.render(graph.breadthFirstSearch().display())
+        DSAGraph.render(graph.depthFirstSearch().display())
 
 if __name__ == "__main__":
     unittest.main()
