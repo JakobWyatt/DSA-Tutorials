@@ -1,5 +1,6 @@
 import unittest
 import typing
+import numpy as np
 
 from linkedLists import DSALinkedList
 
@@ -91,7 +92,9 @@ class DSAGraph:
         return "".join(f"{x}\n" for x in self._verticies)
 
     def displayAsMatrix(self) -> str:
-        ...
+        count = self.getVertexCount()
+        mat = np.zeros([count, count], dtype=object)
+        
 
     def display(self) -> str:
         ...
@@ -146,11 +149,25 @@ class TestDSAGraph(unittest.TestCase):
         self.assertEqual(graph.getEdgeCount(), 0)
         graph.addEdge("hello", "world")
         self.assertEqual(graph.getEdgeCount(), 1)
-        graph.addEdge("world", "hello")
+        graph.addEdge("yeah", "hello")
         self.assertEqual(graph.getEdgeCount(), 2)
         graph.addEdge("yeah", "world")
         self.assertEqual(graph.getEdgeCount(), 3)
 
+    def testDisplay(self):
+        graph = DSAGraph()
+        graph.addVertex("hello", "world")
+        graph.addVertex("world", "hello")
+        graph.addVertex("yeah", "boi")
+
+        graph.addEdge("hello", "world")
+        graph.addEdge("yeah", "hello")
+        graph.addEdge("yeah", "world")
+
+        self.assertEqual(graph.displayAsList(),
+                        ("yeah,boi:world hello\n"
+                         "world,hello:yeah hello\n"
+                         "hello,world:yeah world\n"))
 
 if __name__ == "__main__":
     unittest.main()
