@@ -92,9 +92,26 @@ class DSAGraph:
         return "".join(f"{x}\n" for x in self._verticies)
 
     def displayAsMatrix(self) -> str:
+        label = [str(x.label) for x in self._verticies]
+        colWidth = len(max(label, key=lambda x: len(x))) + 1
+        # Pad initial row of labels
+        matStr = ' ' * colWidth
+        matStr += "".join([x + " " * (colWidth - len(x)) for x in label])
+        matStr += "\n"
+        adjMat = self.adjacencyMatrix()
+        for i, l in enumerate(label):
+            matStr += l + " " * (colWidth - len(l))
+            matStr += (" " * (colWidth - 1)).join([str(x) for x in adjMat[i].flat])
+            matStr += "\n"
+        return matStr
+
+    def adjacencyMatrix(self):
         count = self.getVertexCount()
-        mat = np.zeros([count, count], dtype=object)
-        
+        mat = np.zeros([count, count], dtype=int)
+        for i, v in enumerate(self._verticies):
+            for j, l in enumerate(self._verticies):
+                mat[i][j] = 1 if v.adjacent.find(l) else 0
+        return mat
 
     def display(self) -> str:
         ...
@@ -154,7 +171,7 @@ class TestDSAGraph(unittest.TestCase):
         graph.addEdge("yeah", "world")
         self.assertEqual(graph.getEdgeCount(), 3)
 
-    def testDisplay(self):
+    def testListDisplay(self):
         graph = DSAGraph()
         graph.addVertex("hello", "world")
         graph.addVertex("world", "hello")
@@ -168,6 +185,22 @@ class TestDSAGraph(unittest.TestCase):
                         ("yeah,boi:world hello\n"
                          "world,hello:yeah hello\n"
                          "hello,world:yeah world\n"))
+
+    def testMatrixDisplay(self):
+        graph = DSAGraph()
+        graph.addVertex("hello", "world")
+        graph.addVertex("world", "hello")
+        graph.addVertex("yeah", "boi")
+
+        #graph.addEdge("hello", "world")
+        graph.addEdge("yeah", "hello")
+        graph.addEdge("yeah", "world")
+
+        self.assertEqual(graph.displayAsMatrix(),
+                        ("      yeah  world hello \n"
+                         "yeah  0     1     1\n"
+                         "world 1     0     0\n"
+                         "hello 1     0     0\n"))
 
 if __name__ == "__main__":
     unittest.main()
