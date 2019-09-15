@@ -119,7 +119,7 @@ class DSAGraph:
         return "strict graph {\n" + "".join([x.gv() for x in self._verticies]) + "}\n"
 
     @staticmethod
-    def render(gv: str, *, type='svg'):
+    def render(gv: str, *, type='svg', id=''):
         """
         Renders a graphviz DOT file.
         Prints the render result to a temporary output file.
@@ -134,7 +134,7 @@ class DSAGraph:
             raise RuntimeError("Rendering DOT files requires "
                                "graphviz to be installed.")
         else:
-            with NamedTemporaryFile(delete=False, suffix=f'.{type}') as f:
+            with NamedTemporaryFile(delete=False, suffix=f'{id}.{type}') as f:
                 # Render the graph.
                 run(["fdp", f"-T{type}", "-o", f.name], input=gv.encode())
                 # Attempt to display the graph.
@@ -321,10 +321,51 @@ class TestDSAGraph(unittest.TestCase):
         self.assertEqual(graph.displayAsMatrix(), readGraph.displayAsMatrix())
 
     def testBFSandDFS(self):
-        graph = DSAGraph.readGraphFile("prac6_1.al")
-        DSAGraph.render(graph.display())
-        DSAGraph.render(graph.breadthFirstSearch().display())
-        DSAGraph.render(graph.depthFirstSearch().display())
+        graph1 = DSAGraph.readGraphFile("3a.al")
+        graph2 = DSAGraph.readGraphFile("3b.al")
+
+        bfs1Str = ("G,None:E\n"
+                   "F,None:D\n"
+                   "E,None:G A\n"
+                   "D,None:F A\n"
+                   "C,None:A\n"
+                   "B,None:A\n"
+                   "A,None:E D C B\n")
+        self.assertEqual(graph1.breadthFirstSearch().displayAsList(), bfs1Str)
+
+        dfs1Str = ("G,None:F\n"
+                   "C,None:D\n"
+                   "D,None:C F\n"
+                   "F,None:G D E\n"
+                   "E,None:F B\n"
+                   "B,None:E A\n"
+                   "A,None:B\n")
+        self.assertEqual(graph1.depthFirstSearch().displayAsList(), dfs1Str)
+
+        bfs2Str = ("J,None:H\n"
+                   "I,None:F\n"
+                   "G,None:E\n"
+                   "H,None:J D\n"
+                   "F,None:I C\n"
+                   "E,None:G B\n"
+                   "D,None:H A\n"
+                   "C,None:F A\n"
+                   "B,None:E A\n"
+                   "A,None:D C B\n")
+        self.assertEqual(graph2.breadthFirstSearch().displayAsList(), bfs2Str)
+
+        dfs2Str = ("J,None:G\n"
+                   "G,None:J H\n"
+                   "H,None:G I\n"
+                   "I,None:H F\n"
+                   "C,None:F\n"
+                   "F,None:I C D\n"
+                   "D,None:F E\n"
+                   "E,None:D B\n"
+                   "B,None:E A\n"
+                   "A,None:B\n")
+        self.assertEqual(graph2.depthFirstSearch().displayAsList(), dfs2Str)
+
 
 if __name__ == "__main__":
     unittest.main()
