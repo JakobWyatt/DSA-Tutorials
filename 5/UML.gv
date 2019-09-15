@@ -79,12 +79,34 @@ digraph DSAGraph {
     ]
     TestDSALinkedList -> unittestTestCase
 
+    DSAListStack [
+                label = "{DSAListStack|- stack: DSALinkedList|+ push(item: Object) : None\l+ pop() : Object\l+ top() : Object\l+ isEmpty() : bool\l}"
+        ]
+
+    DSAListQueue [
+                label = "{DSAListQueue|- queue: DSALinkedList|+ enqueue(item: Object) : None\l+ dequeue() : Object\l+ peek() : Object\l+ isEmpty() : bool\l}"
+        ]
+
+    TestDSAADT [
+                label = "{TestDSAADT|+ testDSAListStack() : None\l+ testDSAListQueue() : None\l}"
+        ]
+
+    TestDSAADT -> unittestTestCase [arrowhead = "onormal"]
+    TestDSAADT -> DSAListQueue [arrowhead = "vee"]
+    TestDSAADT -> DSAListStack [arrowhead = "vee"]
+    DSAGraph -> DSAListQueue [arrowhead = "vee"]
+    DSAGraph -> DSAListStack [arrowhead = "vee"]
+
+
     TestDSAGraph -> DSAGraph [arrowhead = "vee"]
     DSAGraphVertex -> DSAGraph [arrowhead = "diamond"]
     TestDSAGraph -> unittestTestCase [arrowhead = "onormal"]
+    
 
     DSALinkedList -> DSAGraph [arrowhead = "diamond"]
     DSALinkedList -> DSAGraphVertex [arrowhead = "diamond"]
+    DSALinkedList -> DSAListStack [arrowhead = "diamond"]
+    DSALinkedList -> DSAListQueue [arrowhead = "diamond"]
 
     rankdir=BT
 }
