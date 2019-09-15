@@ -160,25 +160,29 @@ class DSAGraph:
         return graph
 
     def depthFirstSearch(self) -> 'DSAGraph':
+        # Mark nodes as new
         tree = DSAGraph()
         stack = DSAListStack()
         for v in self._verticies:
             v.visited = False
 
+        # Set up first node
         if self._verticies._head is not None:
             head = self._verticies.peekFirst()
             head.visited = True
             tree.addVertex(head.label, head.value)
             stack.push(head)
-            while not stack.isEmpty():
-                node = next((x for x in stack.top().adjacent if not x.visited), None)
-                if node is None:
-                    stack.pop()
-                else:
-                    node.visited = True
-                    tree.addVertex(node.label, node.value)
-                    tree.addEdge(node.label, stack.top().label)
-                    stack.push(node)
+        
+        # Perform DFS
+        while not stack.isEmpty():
+            node = next((x for x in stack.top().adjacent if not x.visited), None)
+            if node is None:
+                stack.pop()
+            else:
+                node.visited = True
+                tree.addVertex(node.label, node.value)
+                tree.addEdge(node.label, stack.top().label)
+                stack.push(node)
         return tree
 
     def breadthFirstSearch(self) -> 'DSAGraph':
@@ -192,14 +196,15 @@ class DSAGraph:
             head.visited = True
             tree.addVertex(head.label, head.value)
             queue.enqueue(head)
-            while not queue.isEmpty():
-                centre = queue.dequeue()
-                for v in centre.adjacent:
-                    if not v.visited:
-                        queue.enqueue(v)
-                        tree.addVertex(v.label, v.value)
-                        tree.addEdge(centre.label, v.label)
-                        v.visited = True
+        
+        while not queue.isEmpty():
+            centre = queue.dequeue()
+            for v in centre.adjacent:
+                if not v.visited:
+                    queue.enqueue(v)
+                    tree.addVertex(v.label, v.value)
+                    tree.addEdge(centre.label, v.label)
+                    v.visited = True
         return tree
 
 
