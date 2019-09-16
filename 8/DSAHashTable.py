@@ -46,8 +46,21 @@ class DSAHashTable:
         ...
     
     @staticmethod
-    def _hash(key) -> int:
-        ...
+    def _hash(key, len: int) -> int:
+        import struct
+        # Implementation of java string hash
+        # Len should be prime
+        hash = 0
+        if isinstance(key, int):
+            key = struct.pack("i", key)
+        elif isinstance(key, str):
+            key = key.encode()
+        else:
+            raise ValueError("Unsupported key type. Use str or int instead.")
+        
+        for x in key:
+            hash = 31 * hash + x
+        return hash % len; 
 
     @staticmethod
     def _stepHash(key) -> int:
