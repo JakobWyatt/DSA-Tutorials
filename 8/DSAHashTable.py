@@ -42,11 +42,31 @@ class DSAHashTable:
     def export(self) -> str:
         ...
 
-    def _resize(self, size: int) -> str:
-        ...
-    
+    def _find(self, key, empty) -> DSAHashEntry:
+        # If key doesn't exist, find where it should be
+        # If key does exist, return its DSAHashEntry
+        i = DSAHashTable._hash(key, len(self._hashArray))
+        first = self._hashArray[i]
+
+    def _resize(self):
+        newTable = DSAHashTable(len(self._hashArray) * 2)
+        for x in self:
+            newTable.put(x.key, x.value)
+        self._hashArray = newTable._hashArray
+
+    def __iter__(self):
+        def hashIter(hashArray):
+            for x in hashArray:
+                if x.state == 1:
+                    yield x
+        return hashIter(self._hashArray)
+
     @staticmethod
     def _hash(key, len: int) -> int:
+        return DSAHashTable._baseHash(key, len) % len
+    
+    @staticmethod
+    def _baseHash(key, len: int) -> int:
         import struct
         # Implementation of java string hash
         # Len should be prime
@@ -60,11 +80,11 @@ class DSAHashTable:
         
         for x in key:
             hash = 31 * hash + x
-        return hash % len; 
+        return hash
 
     @staticmethod
-    def _stepHash(key) -> int:
-        ...
+    def _stepHash(key, len: int) -> int:
+        return _baseHash(key, len) % (len - 1) + 1
 
     @staticmethod
     def _nextPrime(x: int) -> int:
