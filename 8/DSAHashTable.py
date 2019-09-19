@@ -46,7 +46,12 @@ class DSAHashTable:
         # If key doesn't exist, find where it should be
         # If key does exist, return its DSAHashEntry
         i = DSAHashTable._hash(key, len(self._hashArray))
-        first = self._hashArray[i]
+        stepHash = DSAHashTable._stepHash(key, len(self._hashArray))
+        candidate = self._hashArray[i]
+        while candidate.key != key and candidate.state != -1:
+            i = (i + stepHash) % len(self._hashArray)
+            candidate = self._hashArray[i]
+        return candidate
 
     def _resize(self):
         newTable = DSAHashTable(len(self._hashArray) * 2)
