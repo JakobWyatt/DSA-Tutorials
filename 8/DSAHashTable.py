@@ -144,7 +144,11 @@ class DSAHashTable:
 
     @staticmethod
     def _hash(key, len: int) -> int:
-        return DSAHashTable._baseHash(key) % len
+        return DSAHashTable._javaStrHash(key) % len
+
+    @staticmethod
+    def _stepHash(key, len: int) -> int:
+        return DSAHashTable._javaStrHash(key) % (len - 1) + 1
 
     # Hash function requirements:
     # Fit within the size of the array
@@ -152,7 +156,7 @@ class DSAHashTable:
     # Repeatable
     # Distribute evenly
     @staticmethod
-    def _baseHash(key) -> int:
+    def _javaStrHash(key) -> int:
         import struct
         # Implementation of java string hash
         hash = 0
@@ -166,10 +170,6 @@ class DSAHashTable:
         for x in key:
             hash = 31 * hash + x
         return hash
-
-    @staticmethod
-    def _stepHash(key, len: int) -> int:
-        return DSAHashTable._baseHash(key) % (len - 1) + 1
 
     @staticmethod
     def _nextPrime(x: int) -> int:
@@ -199,8 +199,8 @@ class TestDSAHashTable(unittest.TestCase):
         self.assertEqual(5, DSAHashTable._nextPrime(5))
         self.assertEqual(163, DSAHashTable._nextPrime(158))
 
-    def testPutGetResize(self):
-        table = DSAHashTable(1)
+    def TputGetResize(self, *, lf, rf):
+        table = DSAHashTable(1, loadFactor=lf, resizeFactor=rf)
         self.assertRaises(ValueError, table.get, "hello")
         table.put("hello", "world")
         self.assertEqual(table.get("hello"), "world")
@@ -214,9 +214,8 @@ class TestDSAHashTable(unittest.TestCase):
         self.assertEqual(table.get("hello"), "world")
         self.assertEqual(table.get(1), 2)
 
-    def testDelete(self):
-        # Increase hash probability
-        table = DSAHashTable(4, loadFactor=1.0)
+    def Tdelete(self, *, lf, rf):
+        table = DSAHashTable(4, loadFactor=lf, resizeFactor=rf)
         table.put(0, 0)
         table.put(1, 1)
         table.put(2, 2)
@@ -240,9 +239,8 @@ class TestDSAHashTable(unittest.TestCase):
         self.assertFalse(table.hasKey(0))
         self.assertFalse(table.hasKey(2))
 
-
-    def testLoadFactor(self):
-        table = DSAHashTable(4, loadFactor=1.0)
+    def TloadFactor(self):
+        table = DSAHashTable(4)
         self.assertEqual(0.0, table.loadFactor())
         table.put(0, 0)
         self.assertEqual(1/5, table.loadFactor())
@@ -254,6 +252,16 @@ class TestDSAHashTable(unittest.TestCase):
         self.assertEqual(4/5, table.loadFactor())
         table.put(4, 4)
         self.assertEqual(1.0, table.loadFactor())
+
+    def testHashTable(self):
+        lf = 0.5
+        rf = 2
+        self.Tdelete(lf=lf, rf=rf)
+        self.TputGetResize(lf=lf, rf=rf)
+        lf = 1
+        rf = 1.2
+        self.Tdelete(lf=lf, rf=rf)
+        self.TputGetResize(lf=lf, rf=rf)
 
     def testReadExport(self):
         # First, test that read works
