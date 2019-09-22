@@ -42,7 +42,7 @@ class DSAHashEntry:
 
 class DSAHashTable:
     # autoResize allows creation of a "dumb" non-resizing table
-    def __init__(self, size: int = 1, *, minLoadFactor: float = 0,
+    def __init__(self, size: int = 100, *, minLoadFactor: float = 0,
                  maxLoadFactor: float = 0.5, resizeFactor: float = 2, _autoResize = True):
         self._hashArray = np.empty(DSAHashTable._nextPrime(size), dtype=object)
         for i in range(len(self._hashArray)):
@@ -265,8 +265,8 @@ class TestDSAHashTable(unittest.TestCase):
             for x in vals[x + 1:]:
                 self.assertEqual(table.get(x), x)
 
-    def TloadFactor(self):
-        table = DSAHashTable(4)
+    def testLoadFactor(self):
+        table = DSAHashTable(4, maxLoadFactor=1)
         self.assertEqual(0.0, table.loadFactor())
         table.put(0, 0)
         self.assertEqual(1/5, table.loadFactor())
@@ -279,7 +279,7 @@ class TestDSAHashTable(unittest.TestCase):
         table.put(4, 4)
         self.assertEqual(1.0, table.loadFactor())
 
-    def testHashTable(self):
+    def testHashTableParams(self):
         ub = 0.5
         lb = 0
         rf = 2

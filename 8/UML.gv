@@ -1,0 +1,72 @@
+digraph DSAHash {
+    node [
+        shape = "record"
+    ]
+
+    DSAHash [
+        label = <{DSAHashTable
+        |- _count: int
+        <br align="left"/>- _autoResize: bool
+        <br align="left"/>- _hashArray: Array[Object]
+        <br align="left"/>- _resizeFactor: float
+        <br align="left"/>- _maxLoadFactor: float
+        <br align="left"/>- _minLoadFactor: float
+        <br align="left"/>- _find(key: Object): DSAHashEntry
+        <br align="left"/>- _resizeIfNeeded(): bool
+        <br align="left"/>- _resize(size: int): None
+        <br align="left"/><u>- _hash(key: Object): int</u>
+        <br align="left"/><u>- _stepHash(key: Object): int</u>
+        <br align="left"/><u>- _packKey(key: Object): Array[int]</u>
+        <br align="left"/><u>- _javaStrHash(key: Object): int</u>
+        <br align="left"/><u>- _fnvHash(key: Object): int</u>
+        <br align="left"/><u>- _nextPrime(x: int): int</u>
+        |+ put(key: Object, value: Object): None
+        <br align="left"/>+ get(key: Object): Object
+        <br align="left"/>+ hasKey(key: Object): bool
+        <br align="left"/>+ remove(key: Object): Object
+        <br align="left"/>+ loadFactor(): float
+        <br align="left"/>+ export(): str
+        <br align="left"/><u>+ read(string: str): DSAHashTable</u>
+        <br align="left"/>+ __len__(): int
+        <br align="left"/>+ __iter__()<br align="left"/>}>
+    ]
+
+    DSAHashEntry [
+        label = "{DSAHashEntry
+        |- _key: Object
+        \l- _value: Object
+        \l- _state: DSAHashEntry.status
+        |+ key: Object
+        \l+ value: Object
+        \l+ state: DSAHashEntry.status\l}"
+    ]
+
+    DSAHashEntryStatus [
+        label = "{\<\<enumeration\>\>
+        \lDSAHashEntry.status
+        |EMPTY
+        \lFULL
+        \lUSED\l}"
+    ]
+
+    TestDSAHash [
+        label = "{TestDSAHashTable
+        |+ testNextPrime(): None
+        \l+ TputGetResize(): None
+        \l+ Tdelete(): None
+        \l+ testLoadFactor(): None
+        \l+ testHashTableParams(): None
+        \l+ testReadExport(): None\l}"
+    ]
+
+    unittestTestCase [
+        label = "{unittest.TestCase}"
+    ]
+
+    TestDSAHash -> DSAHash [arrowhead = "vee"]
+    DSAHashEntry -> DSAHashEntryStatus [arrowhead = "vee"]
+    DSAHashEntry -> DSAHash [arrowhead = "diamond"]
+    TestDSAHash -> unittestTestCase [arrowhead = "onormal"]
+
+    rankdir=BT
+}
