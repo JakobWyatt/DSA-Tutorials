@@ -217,7 +217,18 @@ class TestDSAHashTable(unittest.TestCase):
 
 
     def testLoadFactor(self):
-        ...
+        table = DSAHashTable(4, loadFactor=1.0)
+        self.assertEqual(0.0, table.loadFactor())
+        table.put(0, 0)
+        self.assertEqual(1/5, table.loadFactor())
+        table.put(1, 1)
+        self.assertEqual(2/5, table.loadFactor())
+        table.put(2, 2)
+        self.assertEqual(3/5, table.loadFactor())
+        table.put(3, 3)
+        self.assertEqual(4/5, table.loadFactor())
+        table.put(4, 4)
+        self.assertEqual(1.0, table.loadFactor())
 
 
 if __name__ == "__main__":
