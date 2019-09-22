@@ -1,6 +1,7 @@
 import unittest
 from enum import Enum
 import numpy as np
+from math import ceil
 
 class DSAHashEntry:
     class status(Enum):
@@ -56,7 +57,7 @@ class DSAHashTable:
 
     def put(self, key, value: object) -> None:
         candidate = self._find(key)
-        if candidate.state != DSAHashEntry.status.FULL:
+        if candidate is None or candidate.state != DSAHashEntry.status.FULL:
             # Inserting into table
             self._count += 1
             if self._resizeIfNeeded():
@@ -67,17 +68,19 @@ class DSAHashTable:
 
     def get(self, key) -> DSAHashEntry:
         candidate = self._find(key)
-        if candidate.state != DSAHashEntry.status.FULL:
+        if candidate is None or candidate.state != DSAHashEntry.status.FULL:
             raise ValueError("Key not found.")
         return candidate.value
 
     def hasKey(self, key) -> bool:
-        return self._find(key).state == DSAHashEntry.status.FULL
+        candidate = self._find(key)
+        return candidate is not None and candidate.state == DSAHashEntry.status.FULL
 
     def remove(self, key) -> object:
         candidate = self._find(key)
-        if candidate.state != DSAHashEntry.status.FULL:
+        if candidate is None or candidate.state != DSAHashEntry.status.FULL:
             raise ValueError("Key not found.")
+        self._count -= 1
         candidate.state = DSAHashEntry.status.USED
         candidate.key = None
         value = candidate.value
@@ -88,16 +91,22 @@ class DSAHashTable:
         return len(self) / len(self._hashArray)
 
     def export(self) -> str:
-        ...
+        return "".join([f"{k},{v}\n" for (k, v) in self])
 
     @staticmethod
-    def read(str: str) -> 'DSAHashTable':
-        # Discard any duplicates
-        ...
+    def read(string: str) -> 'DSAHashTable':
+        lines = string.split('\n')[:-1]
+        table = DSAHashTable(len(lines))
+        for x in lines:
+            key, value = x.split(',')
+            if not table.hasKey(key):
+                table.put(key, value)
+        return table
 
     def __len__(self):
         return self._count
 
+    # Return None if there is no available space for the key
     def _find(self, key) -> DSAHashEntry:
         i = DSAHashTable._hash(key, len(self._hashArray))
         stepHash = DSAHashTable._stepHash(key, len(self._hashArray))
@@ -107,13 +116,16 @@ class DSAHashTable:
             jumps += 1
             i = (i + stepHash) % len(self._hashArray)
             candidate = self._hashArray[i]
+
+        if jumps == len(self._hashArray):
+            candidate = None
         return candidate
 
     def _resizeIfNeeded(self) -> bool:
         # Only ever increases the size
         resized = False
         if self.loadFactor() > self._loadFactor:
-            self._resize(len(self._hashArray) * self._resizeFactor)
+            self._resize(ceil(len(self._hashArray) * self._resizeFactor))
             resized = True
         return resized
 
@@ -253,6 +265,7 @@ class TestDSAHashTable(unittest.TestCase):
                 if key not in names:
                     # Dont update duplicates
                     names[key] = value
+            f.seek(0)
             table = DSAHashTable.read("".join(f))
         # Test that read works
         for key in names:
