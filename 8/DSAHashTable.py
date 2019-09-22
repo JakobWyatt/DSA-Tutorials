@@ -41,21 +41,23 @@ class DSAHashEntry:
 
 
 class DSAHashTable:
-    def __init__(self, size: int = 100, *, minLoadFactor: float = 0,
-                 maxLoadFactor: float = 0.5, resizeFactor: float = 2):
+    # autoResize allows creation of a "dumb" non-resizing table
+    def __init__(self, size: int = 1, *, minLoadFactor: float = 0,
+                 maxLoadFactor: float = 0.5, resizeFactor: float = 2, _autoResize = True):
         self._hashArray = np.empty(DSAHashTable._nextPrime(size), dtype=object)
         for i in range(len(self._hashArray)):
             self._hashArray[i] = DSAHashEntry()
         self._count = 0
+        self._autoResize = _autoResize
 
         # Validating minLoadFactor and maxLoadFactor is difficult,
         # and amounts to verifying that the statement
         # ∀ n ∈ ℕ, ∃ b ≥ n ∈ prime s.t. lb < n/b < ub
         # is true. (n is the count and b is the table size)
-        # Asserting that maxLoadFactor - minLoadFactor >= 0.5
+        # Asserting that maxLoadFactor - minLoadFactor >= 1/3
         # or minLoadFactor = 0 is enough to satisfy this condition,
         # although it leaves out lots of valid solutions.
-        if (maxLoadFactor - minLoadFactor < 0.5 and minLoadFactor != 0
+        if (maxLoadFactor - minLoadFactor < 1/3 and minLoadFactor != 0
             or maxLoadFactor > 1 or minLoadFactor < 0 or maxLoadFactor == 0):
             raise ValueError("Invalid max and min load factor.")
         self._minLoadFactor = minLoadFactor
@@ -76,8 +78,9 @@ class DSAHashTable:
         if candidate is None or candidate.state != DSAHashEntry.status.FULL:
             # Inserting into table
             self._count += 1
-            if self._resizeIfNeeded():
-                candidate = self._find(key)
+            if self._autoResize:
+                if self._resizeIfNeeded():
+                    candidate = self._find(key)
             candidate.state = DSAHashEntry.status.FULL
             candidate.key = key
         candidate.value = value
@@ -97,6 +100,9 @@ class DSAHashTable:
         if candidate is None or candidate.state != DSAHashEntry.status.FULL:
             raise ValueError("Key not found.")
         self._count -= 1
+        if self._autoResize:
+            if self._resizeIfNeeded():
+                candidate = self._find(key)
         candidate.state = DSAHashEntry.status.USED
         candidate.key = None
         value = candidate.value
@@ -138,15 +144,18 @@ class DSAHashTable:
         return candidate
 
     def _resizeIfNeeded(self) -> bool:
-        # Only ever increases the size
         resized = False
         if self.loadFactor() > self._maxLoadFactor:
             self._resize(ceil(len(self._hashArray) * self._resizeFactor))
             resized = True
+        elif self.loadFactor() < self._minLoadFactor:
+            # Make consecutive remove as fast as possible
+            self._resize(ceil(len(self) / self._maxLoadFactor))
+            resized = True
         return resized
 
     def _resize(self, size):
-        newTable = DSAHashTable(size)
+        newTable = DSAHashTable(size, _autoResize=False)
         for k, v in self:
             newTable.put(k, v)
         self._hashArray = newTable._hashArray
@@ -245,29 +254,16 @@ class TestDSAHashTable(unittest.TestCase):
         self.assertEqual(table.get(1), 2)
 
     def Tdelete(self, *, rf, lb, ub):
-        table = DSAHashTable(4, minLoadFactor=lb, maxLoadFactor=ub, resizeFactor=rf)
-        table.put(0, 0)
-        table.put(1, 1)
-        table.put(2, 2)
-        table.put(3, 3)
-        table.put(4, 4)
-        self.assertEqual(table.get(0), 0)
-        self.assertEqual(table.get(1), 1)
-        self.assertEqual(table.get(2), 2)
-        self.assertEqual(table.get(3), 3)
-        self.assertEqual(table.get(4), 4)
-        self.assertEqual(table.remove(0), 0)
-        self.assertEqual(table.get(1), 1)
-        self.assertEqual(table.get(2), 2)
-        self.assertEqual(table.get(3), 3)
-        self.assertEqual(table.get(4), 4)
-        self.assertFalse(table.hasKey(0))
-        self.assertEqual(table.remove(2), 2)
-        self.assertEqual(table.get(1), 1)
-        self.assertEqual(table.get(3), 3)
-        self.assertEqual(table.get(4), 4)
-        self.assertFalse(table.hasKey(0))
-        self.assertFalse(table.hasKey(2))
+        table = DSAHashTable(6, minLoadFactor=lb, maxLoadFactor=ub, resizeFactor=rf)
+        vals = [0, 1, 2, 3, 4]
+        for x in vals:
+            table.put(x, x)
+        for x in vals:
+            self.assertEqual(table.remove(x), x)
+            for x in vals[:x + 1]:
+                self.assertFalse(table.hasKey(x))
+            for x in vals[x + 1:]:
+                self.assertEqual(table.get(x), x)
 
     def TloadFactor(self):
         table = DSAHashTable(4)
@@ -292,6 +288,11 @@ class TestDSAHashTable(unittest.TestCase):
         ub = 1
         lb = 0
         rf = 1.2
+        self.Tdelete(lb=lb, ub=ub, rf=rf)
+        self.TputGetResize(lb=lb, ub=ub, rf=rf)
+        ub = 1.0
+        lb = 0.33
+        rf = 1.5
         self.Tdelete(lb=lb, ub=ub, rf=rf)
         self.TputGetResize(lb=lb, ub=ub, rf=rf)
 
