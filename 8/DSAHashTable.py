@@ -85,10 +85,18 @@ class DSAHashTable:
         return value
 
     def loadFactor(self) -> float:
-        return self._count / len(self._hashArray)
+        return len(self) / len(self._hashArray)
 
     def export(self) -> str:
         ...
+
+    @staticmethod
+    def read(str: str) -> 'DSAHashTable':
+        # Discard any duplicates
+        ...
+
+    def __len__(self):
+        return self._count
 
     def _find(self, key) -> DSAHashEntry:
         i = DSAHashTable._hash(key, len(self._hashArray))
@@ -111,21 +119,26 @@ class DSAHashTable:
 
     def _resize(self, size):
         newTable = DSAHashTable(size)
-        for x in self:
-            newTable.put(x.key, x.value)
+        for k, v in self:
+            newTable.put(k, v)
         self._hashArray = newTable._hashArray
 
     def __iter__(self):
         def hashIter(hashArray):
             for x in hashArray:
                 if x.state == DSAHashEntry.status.FULL:
-                    yield x
+                    yield (x.key, x.value)
         return hashIter(self._hashArray)
 
     @staticmethod
     def _hash(key, len: int) -> int:
         return DSAHashTable._baseHash(key) % len
-    
+
+    # Hash function requirements:
+    # Fit within the size of the array
+    # Fast to compute
+    # Repeatable
+    # Distribute evenly
     @staticmethod
     def _baseHash(key) -> int:
         import struct
@@ -229,6 +242,26 @@ class TestDSAHashTable(unittest.TestCase):
         self.assertEqual(4/5, table.loadFactor())
         table.put(4, 4)
         self.assertEqual(1.0, table.loadFactor())
+
+    def testReadExport(self):
+        # First, test that read works
+        # Then, test that export works
+        with open("RandomNames7000.csv", "r") as f:
+            for x in f:
+                names = {}
+                key, value = x.rstrip('\n').split(',')
+                if key not in names:
+                    # Dont update duplicates
+                    names[key] = value
+            table = DSAHashTable.read("".join(f))
+        # Test that read works
+        for key in names:
+            self.assertEqual(names[key], table.get(key))
+        # Test that write works
+        table2 = DSAHashTable.read(table.export())
+        for k, v in table:
+            self.assertEqual(table.remove(k), table2.remove(k))
+        self.assertEqual(len(table2), 0)
 
 
 if __name__ == "__main__":
