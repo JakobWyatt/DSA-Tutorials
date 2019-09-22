@@ -71,6 +71,9 @@ class DSAHashTable:
             raise ValueError("Key not found.")
         return candidate.value
 
+    def hasKey(self, key) -> bool:
+        return self._find(key).state == DSAHashEntry.status.FULL
+
     def remove(self, key) -> object:
         candidate = self._find(key)
         if candidate.state != DSAHashEntry.status.FULL:
@@ -91,7 +94,9 @@ class DSAHashTable:
         i = DSAHashTable._hash(key, len(self._hashArray))
         stepHash = DSAHashTable._stepHash(key, len(self._hashArray))
         candidate = self._hashArray[i]
-        while candidate.key != key and candidate.state != DSAHashEntry.status.EMPTY:
+        jumps = 0
+        while candidate.key != key and candidate.state != DSAHashEntry.status.EMPTY and jumps < len(self._hashArray):
+            jumps += 1
             i = (i + stepHash) % len(self._hashArray)
             candidate = self._hashArray[i]
         return candidate
@@ -119,13 +124,12 @@ class DSAHashTable:
 
     @staticmethod
     def _hash(key, len: int) -> int:
-        return DSAHashTable._baseHash(key, len) % len
+        return DSAHashTable._baseHash(key) % len
     
     @staticmethod
-    def _baseHash(key, len: int) -> int:
+    def _baseHash(key) -> int:
         import struct
         # Implementation of java string hash
-        # Len should be prime
         hash = 0
         if isinstance(key, int):
             key = struct.pack("i", key)
@@ -140,7 +144,7 @@ class DSAHashTable:
 
     @staticmethod
     def _stepHash(key, len: int) -> int:
-        return DSAHashTable._baseHash(key, len) % (len - 1) + 1
+        return DSAHashTable._baseHash(key) % (len - 1) + 1
 
     @staticmethod
     def _nextPrime(x: int) -> int:
@@ -186,7 +190,31 @@ class TestDSAHashTable(unittest.TestCase):
         self.assertEqual(table.get(1), 2)
 
     def testDelete(self):
-        ...
+        # Increase hash probability
+        table = DSAHashTable(4, loadFactor=1.0)
+        table.put(0, 0)
+        table.put(1, 1)
+        table.put(2, 2)
+        table.put(3, 3)
+        table.put(4, 4)
+        self.assertEqual(table.get(0), 0)
+        self.assertEqual(table.get(1), 1)
+        self.assertEqual(table.get(2), 2)
+        self.assertEqual(table.get(3), 3)
+        self.assertEqual(table.get(4), 4)
+        self.assertEqual(table.remove(0), 0)
+        self.assertEqual(table.get(1), 1)
+        self.assertEqual(table.get(2), 2)
+        self.assertEqual(table.get(3), 3)
+        self.assertEqual(table.get(4), 4)
+        self.assertFalse(table.hasKey(0))
+        self.assertEqual(table.remove(2), 2)
+        self.assertEqual(table.get(1), 1)
+        self.assertEqual(table.get(3), 3)
+        self.assertEqual(table.get(4), 4)
+        self.assertFalse(table.hasKey(0))
+        self.assertFalse(table.hasKey(2))
+
 
     def testLoadFactor(self):
         ...
