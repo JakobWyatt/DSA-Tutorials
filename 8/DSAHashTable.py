@@ -148,7 +148,18 @@ class DSAHashTable:
 
     @staticmethod
     def _stepHash(key, len: int) -> int:
-        return DSAHashTable._javaStrHash(key) % (len - 1) + 1
+        return DSAHashTable._fnvHash(key) % (len - 1) + 1
+
+    @staticmethod
+    def _packKey(key):
+        import struct
+        if isinstance(key, int):
+            key = struct.pack("i", key)
+        elif isinstance(key, str):
+            key = key.encode()
+        else:
+            raise ValueError("Unsupported key type. Use str or int instead.")
+        return key
 
     # Hash function requirements:
     # Fit within the size of the array
@@ -157,18 +168,17 @@ class DSAHashTable:
     # Distribute evenly
     @staticmethod
     def _javaStrHash(key) -> int:
-        import struct
-        # Implementation of java string hash
         hash = 0
-        if isinstance(key, int):
-            key = struct.pack("i", key)
-        elif isinstance(key, str):
-            key = key.encode()
-        else:
-            raise ValueError("Unsupported key type. Use str or int instead.")
-        
-        for x in key:
+        for x in DSAHashTable._packKey(key):
             hash = 31 * hash + x
+        return hash
+
+    @staticmethod
+    def _fnvHash(key) -> int:
+        hash = 2166136261
+        for x in DSAHashTable._packKey(key):
+            # Force overflow
+            hash = ((hash * 16777619) % 2**64) ^ x
         return hash
 
     @staticmethod
