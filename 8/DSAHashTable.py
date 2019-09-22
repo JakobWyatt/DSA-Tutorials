@@ -41,18 +41,34 @@ class DSAHashEntry:
 
 
 class DSAHashTable:
-    def __init__(self, size: int = 100, *, loadFactor: float = 0.5, resizeFactor: float = 2):
+    def __init__(self, size: int = 100, *, minLoadFactor: float = 0,
+                 maxLoadFactor: float = 0.5, resizeFactor: float = 2):
         self._hashArray = np.empty(DSAHashTable._nextPrime(size), dtype=object)
         for i in range(len(self._hashArray)):
             self._hashArray[i] = DSAHashEntry()
         self._count = 0
 
-        if loadFactor < 0 or loadFactor > 1:
-            raise ValueError("Load factor must be in the range [0, 1]")
-        self._loadFactor = loadFactor
+        # Validating minLoadFactor and maxLoadFactor is difficult,
+        # and amounts to verifying that the statement
+        # ∀ n ∈ ℕ, ∃ b ≥ n ∈ prime s.t. lb < n/b < ub
+        # is true. (n is the count and b is the table size)
+        # Asserting that maxLoadFactor - minLoadFactor >= 0.5
+        # or minLoadFactor = 0 is enough to satisfy this condition,
+        # although it leaves out lots of valid solutions.
+        if (maxLoadFactor - minLoadFactor < 0.5 and minLoadFactor != 0
+            or maxLoadFactor > 1 or minLoadFactor < 0 or maxLoadFactor == 0):
+            raise ValueError("Invalid max and min load factor.")
+        self._minLoadFactor = minLoadFactor
+        self._maxLoadFactor = maxLoadFactor
 
-        if resizeFactor <= 1:
-            raise ValueError("Resize factor must be greater than 1")
+        # resizeFactor takes the range [maxLf, 1] and scales it to the range
+        # [minLf, maxLf].
+        # When shrinking the array, there is no resizeFactor to scale
+        # all array sizes, as when count = 1 and array size → ∞, resizeFactor → ∞.
+        # To circumvent this, calls to _resize use resizeFactor when possible,
+        # and decide the value itself when resizeFactor is too small.
+        if 1 > maxLoadFactor * resizeFactor or maxLoadFactor < minLoadFactor * resizeFactor:
+            raise ValueError("Invalid resize factor.")
         self._resizeFactor = resizeFactor
 
     def put(self, key, value: object) -> None:
@@ -124,7 +140,7 @@ class DSAHashTable:
     def _resizeIfNeeded(self) -> bool:
         # Only ever increases the size
         resized = False
-        if self.loadFactor() > self._loadFactor:
+        if self.loadFactor() > self._maxLoadFactor:
             self._resize(ceil(len(self._hashArray) * self._resizeFactor))
             resized = True
         return resized
@@ -183,7 +199,7 @@ class DSAHashTable:
 
     @staticmethod
     def _nextPrime(x: int) -> int:
-        if x == 2 or x == 1:
+        if x < 3:
             x = 2
         else:
             # Can be made more efficient
@@ -202,6 +218,10 @@ class DSAHashTable:
 
 class TestDSAHashTable(unittest.TestCase):
     def testNextPrime(self):
+        self.assertEqual(2, DSAHashTable._nextPrime(-3))
+        self.assertEqual(2, DSAHashTable._nextPrime(-2))
+        self.assertEqual(2, DSAHashTable._nextPrime(-1))
+        self.assertEqual(2, DSAHashTable._nextPrime(0))
         self.assertEqual(2, DSAHashTable._nextPrime(1))
         self.assertEqual(2, DSAHashTable._nextPrime(2))
         self.assertEqual(3, DSAHashTable._nextPrime(3))
@@ -209,8 +229,8 @@ class TestDSAHashTable(unittest.TestCase):
         self.assertEqual(5, DSAHashTable._nextPrime(5))
         self.assertEqual(163, DSAHashTable._nextPrime(158))
 
-    def TputGetResize(self, *, lf, rf):
-        table = DSAHashTable(1, loadFactor=lf, resizeFactor=rf)
+    def TputGetResize(self, *, rf, lb, ub):
+        table = DSAHashTable(1, minLoadFactor=lb, maxLoadFactor=ub, resizeFactor=rf)
         self.assertRaises(ValueError, table.get, "hello")
         table.put("hello", "world")
         self.assertEqual(table.get("hello"), "world")
@@ -224,8 +244,8 @@ class TestDSAHashTable(unittest.TestCase):
         self.assertEqual(table.get("hello"), "world")
         self.assertEqual(table.get(1), 2)
 
-    def Tdelete(self, *, lf, rf):
-        table = DSAHashTable(4, loadFactor=lf, resizeFactor=rf)
+    def Tdelete(self, *, rf, lb, ub):
+        table = DSAHashTable(4, minLoadFactor=lb, maxLoadFactor=ub, resizeFactor=rf)
         table.put(0, 0)
         table.put(1, 1)
         table.put(2, 2)
@@ -264,14 +284,16 @@ class TestDSAHashTable(unittest.TestCase):
         self.assertEqual(1.0, table.loadFactor())
 
     def testHashTable(self):
-        lf = 0.5
+        ub = 0.5
+        lb = 0
         rf = 2
-        self.Tdelete(lf=lf, rf=rf)
-        self.TputGetResize(lf=lf, rf=rf)
-        lf = 1
+        self.Tdelete(lb=lb, ub=ub, rf=rf)
+        self.TputGetResize(lb=lb, ub=ub, rf=rf)
+        ub = 1
+        lb = 0
         rf = 1.2
-        self.Tdelete(lf=lf, rf=rf)
-        self.TputGetResize(lf=lf, rf=rf)
+        self.Tdelete(lb=lb, ub=ub, rf=rf)
+        self.TputGetResize(lb=lb, ub=ub, rf=rf)
 
     def testReadExport(self):
         # First, test that read works
