@@ -1,8 +1,15 @@
 import unittest
+from enum import Enum
 import numpy as np
 
 class DSAHashEntry:
-    def __init__(self, key = None, value: object = None, state: int = 0):
+    class status(Enum):
+        EMPTY = -1
+        USED = 0
+        FULL = 1
+
+    def __init__(self, key = None, value: object = None,
+                 state: "status" = status.EMPTY):
         self._key = key
         self._value = value
         self._state = state
@@ -10,51 +17,95 @@ class DSAHashEntry:
     @property
     def key(self):
         return self._key
+
+    @key.setter
+    def key(self, key):
+        self._key = key
     
     @property
     def value(self):
         return self._value
 
+    @value.setter
+    def value(self, value):
+        self._value = value
+
     @property
     def state(self):
         return self._state
 
+    @state.setter
+    def state(self, state):
+        self._state = state
+
 
 class DSAHashTable:
-    def __init__(self, size: int = 100):
+    def __init__(self, size: int = 100, *, loadFactor: float = 0.5, resizeFactor: float = 2):
         self._hashArray = np.empty(DSAHashTable._nextPrime(size), dtype=object)
-        for x in self._hashArray:
-            x = DSAHashEntry()
+        for i in range(len(self._hashArray)):
+            self._hashArray[i] = DSAHashEntry()
         self._count = 0
 
-    def put(self, key, value: object) -> None:
-        ...
+        if loadFactor < 0 or loadFactor > 1:
+            raise ValueError("Load factor must be in the range [0, 1]")
+        self._loadFactor = loadFactor
 
-    def get(self, key) -> object:
-        ...
+        if resizeFactor <= 1:
+            raise ValueError("Resize factor must be greater than 1")
+        self._resizeFactor = resizeFactor
+
+    def put(self, key, value: object) -> None:
+        candidate = self._find(key)
+        if candidate.state != DSAHashEntry.status.FULL:
+            # Inserting into table
+            self._count += 1
+            if self._resizeIfNeeded():
+                candidate = self._find(key)
+            candidate.state = DSAHashEntry.status.FULL
+            candidate.key = key
+        candidate.value = value
+
+    def get(self, key) -> DSAHashEntry:
+        candidate = self._find(key)
+        if candidate.state != DSAHashEntry.status.FULL:
+            raise ValueError("Key not found.")
+        return candidate.value
 
     def remove(self, key) -> object:
-        ...
+        candidate = self._find(key)
+        if candidate.state != DSAHashEntry.status.FULL:
+            raise ValueError("Key not found.")
+        candidate.state = DSAHashEntry.status.USED
+        candidate.key = None
+        value = candidate.value
+        candidate.value = None
+        return value
 
-    def getLoadFactor(self) -> float:
-        ...
+    def loadFactor(self) -> float:
+        return self._count / len(self._hashArray)
 
     def export(self) -> str:
         ...
 
-    def _find(self, key, empty) -> DSAHashEntry:
-        # If key doesn't exist, find where it should be
-        # If key does exist, return its DSAHashEntry
+    def _find(self, key) -> DSAHashEntry:
         i = DSAHashTable._hash(key, len(self._hashArray))
         stepHash = DSAHashTable._stepHash(key, len(self._hashArray))
         candidate = self._hashArray[i]
-        while candidate.key != key and candidate.state != -1:
+        while candidate.key != key and candidate.state != DSAHashEntry.status.EMPTY:
             i = (i + stepHash) % len(self._hashArray)
             candidate = self._hashArray[i]
         return candidate
 
-    def _resize(self):
-        newTable = DSAHashTable(len(self._hashArray) * 2)
+    def _resizeIfNeeded(self) -> bool:
+        # Only ever increases the size
+        resized = False
+        if self.loadFactor() > self._loadFactor:
+            self._resize(len(self._hashArray) * self._resizeFactor)
+            resized = True
+        return resized
+
+    def _resize(self, size):
+        newTable = DSAHashTable(size)
         for x in self:
             newTable.put(x.key, x.value)
         self._hashArray = newTable._hashArray
@@ -62,7 +113,7 @@ class DSAHashTable:
     def __iter__(self):
         def hashIter(hashArray):
             for x in hashArray:
-                if x.state == 1:
+                if x.state == DSAHashEntry.status.FULL:
                     yield x
         return hashIter(self._hashArray)
 
@@ -89,7 +140,7 @@ class DSAHashTable:
 
     @staticmethod
     def _stepHash(key, len: int) -> int:
-        return _baseHash(key, len) % (len - 1) + 1
+        return DSAHashTable._baseHash(key, len) % (len - 1) + 1
 
     @staticmethod
     def _nextPrime(x: int) -> int:
@@ -118,6 +169,27 @@ class TestDSAHashTable(unittest.TestCase):
         self.assertEqual(5, DSAHashTable._nextPrime(4))
         self.assertEqual(5, DSAHashTable._nextPrime(5))
         self.assertEqual(163, DSAHashTable._nextPrime(158))
+
+    def testPutGetResize(self):
+        table = DSAHashTable(1)
+        self.assertRaises(ValueError, table.get, "hello")
+        table.put("hello", "world")
+        self.assertEqual(table.get("hello"), "world")
+        self.assertRaises(ValueError, table.get, 1)
+        table.put(1, 2)
+        self.assertEqual(table.get(1), 2)
+        self.assertEqual(table.get("hello"), "world")
+        self.assertRaises(ValueError, table.get, "world")
+        table.put("world", "hello")
+        self.assertEqual(table.get("world"), "hello")
+        self.assertEqual(table.get("hello"), "world")
+        self.assertEqual(table.get(1), 2)
+
+    def testDelete(self):
+        ...
+
+    def testLoadFactor(self):
+        ...
 
 
 if __name__ == "__main__":
