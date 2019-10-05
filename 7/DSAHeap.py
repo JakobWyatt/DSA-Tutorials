@@ -1,5 +1,5 @@
 import unittest
-from typing import List
+from typing import List, Tuple
 import numpy as np
 
 
@@ -50,9 +50,26 @@ class DSAHeap:
         self._trickleDown(0)
         return value
 
+    def _heapify(self):
+        for i in reversed(range(int(len(self) / 2) - 1)):
+            self._trickleDown(i)
+
+    def _heapSort(self):
+        self._heapify()
+        for i in reversed(range(1, len(self))):
+            self._heap[0], self._heap[i] = self._heap[i], self._heap[0]
+            self._count -= 1
+            self._trickleDown(0)
+
     @staticmethod
-    def heapSort(values: List[object]) -> 'DSAHeapEntry':
-        ...
+    def heapSort(values: List[Tuple[int, object]]) -> List[Tuple[int, object]]:
+        heap = DSAHeap(len(values))
+        for i in range(len(values)):
+            heap._heap[i].priority = values[i][0]
+            heap._heap[i].value = values[i][1]
+        heap._count = len(values)
+        heap._heapSort()
+        return [(x.priority, x.value) for x in heap._heap]
 
     def _trickleUp(self, index: int):
         parent = int((index - 1) / 2)
@@ -114,6 +131,12 @@ class TestDSAHeap(unittest.TestCase):
         self.assertEqual(heap.remove(), "neg50")
         self.assertEqual(heap.remove(), "neg51")
         self.assertEqual(heap.remove(), "neg51")
+
+    def testHeapSort(self):
+        with open("RandomNames7000.csv", "r") as f:
+            student = [x.rstrip("\n").split(",") for x in f]
+            for x1, x2 in zip(sorted(student), DSAHeap.heapSort(student)):
+                self.assertEqual(x1[0], x2[0])
 
 
 if __name__ == "__main__":
