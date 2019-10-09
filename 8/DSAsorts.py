@@ -3,6 +3,7 @@
 #
 # Python file to hold all sorting methods
 #
+import numpy as np
 
 
 def bubbleSort(A):
@@ -34,15 +35,38 @@ def selectionSort(A):
 def mergeSort(A):
     """ mergeSort - front-end for kick-starting the recursive algorithm
     """
-    ...
+    mergeSortRecurse(A, 0, len(A) - 1)
 
 
-def mergeSortRecurse(A, leftIdx, rightIdx):
-    ...
+def mergeSortRecurse(A, left, right):
+    if left < right:
+        mid = int((left + right) / 2)
+        mergeSortRecurse(A, left, mid)
+        mergeSortRecurse(A, mid + 1, right)
+        merge(A, left, mid, right)
 
 
-def merge(A, leftIdx, midIdx, rightIdx):
-    ...
+def merge(A, left, mid, right):
+    temp = np.zeros(right - left + 1, dtype=object)
+    i = left
+    j = mid + 1
+    k = 0
+    while i <= mid and j <= right:
+        if A[i] < A[j]:
+            temp[k] = A[i]
+            i += 1
+        else:
+            temp[k] = A[j]
+            j += 1
+        k += 1
+    for ii in range(i, mid + 1):
+        temp[k] = A[ii]
+        k += 1
+    for jj in range(j, right + 1):
+        temp[k] = A[jj]
+        k += 1
+    for i, x in enumerate(temp):
+        A[i + left] = x
 
 
 def quickSort(A):
