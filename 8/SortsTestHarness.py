@@ -81,6 +81,8 @@ def doSort(n, sortType, arrayType):
             DSAsorts.mergeSort(A)
         elif sortType == "q":
             DSAsorts.quickSort(A)
+        elif sortType == "j":
+            A.sort()
         else:
             print("Unsupported sort algorithm")
 
