@@ -59,11 +59,11 @@ def merge(A, left, mid, right):
             temp[k] = A[j]
             j += 1
         k += 1
-    for ii in range(i, mid + 1):
-        temp[k] = A[ii]
+    for x in A[i:mid + 1]:
+        temp[k] = x
         k += 1
-    for jj in range(j, right + 1):
-        temp[k] = A[jj]
+    for x in A[j:right + 1]:
+        temp[k] = x
         k += 1
     for i, x in enumerate(temp):
         A[i + left] = x
@@ -72,12 +72,33 @@ def merge(A, left, mid, right):
 def quickSort(A):
     """ quickSort - front-end for kick-starting the recursive algorithm
     """
-    ...
+    quickSortRecurse(A, 0, len(A) - 1)
 
 
-def quickSortRecurse(A, leftIdx, rightIdx):
-    ...
+def quickSortRecurse(A, left, right):
+    if right > left:
+        pivot = findPivot(A, left, right)
+        pivot = doPartitioning(A, left, right, pivot)
+        quickSortRecurse(A, left, pivot - 1)
+        quickSortRecurse(A, pivot + 1, right)
 
 
-def doPartitioning(A, leftIdx, rightIdx, pivotIdx):
-    ...
+def doPartitioning(A, left, right, pivot):
+    A[pivot], A[right] = A[right], A[pivot]
+
+    cur = left
+    for i, x in enumerate(A[left:right]):
+        if x < A[right]:
+            A[i + left], A[cur] = A[cur], A[i + left]
+            cur += 1
+    A[cur], A[right] = A[right], A[cur]
+    return cur
+
+
+def findPivot(A, left, right):
+    return (left + right) // 2
+
+if __name__ == "__main__":
+    A = [4, 3, 2, 1, 5]
+    quickSort(A)
+    print(A)
