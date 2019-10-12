@@ -89,9 +89,11 @@ def doSort(n, sortType, arrayType):
         elif sortType == "m":
             DSAsorts.mergeSort(A)
         elif sortType == "q":
-            DSAsorts.quickSort(A, DSAsorts.leftPivot)
+            DSAsorts.quickSort(A, pivotFunc=DSAsorts.leftPivot)
         elif sortType == "a":
-            DSAsorts.quickSort(A, DSAsorts.medianOfThreePivot)
+            DSAsorts.quickSort(A, pivotFunc=DSAsorts.medianOfThreePivot)
+        elif sortType == "3":
+            DSAsorts.quickSort(A, pivotFunc=DSAsorts.medianOfThreePivot, threeWay=True)
         elif sortType == "j":
             A.sort()
         elif sortType == "p":
@@ -110,6 +112,7 @@ def doSort(n, sortType, arrayType):
 if len(sys.argv) < 3:
     usage()
 else:
+    sys.setrecursionlimit(10000)
     for aa in range(2, len(sys.argv)):
         
         n = int(sys.argv[1])
