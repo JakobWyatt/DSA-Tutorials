@@ -1,0 +1,82 @@
+\documentclass{article}
+
+\usepackage{tabularx}
+\usepackage{float}
+
+\author{Jakob Wyatt\\19477143}
+\title{Performance of Advanced Sorting Algorithms}
+
+\begin{document}
+\maketitle
+\section{Data}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{| X | X | X | X |}
+\hline
+\textbf{Merge Sort} & \textbf{1024} & \textbf{2048} & \textbf{4096} \\
+\hline
+\textbf{Ascending} & 0.019 & 0.040 & 0.082 \\
+\hline
+\textbf{Descending} & 0.021 & 0.041 & 0.099 \\
+\hline
+\textbf{Random}  & 0.19 & 0.36 & 0.74 \\
+\hline
+\textbf{Repeated} & 0.026 & 0.056 & 0.12 \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{| X | X | X | X |}
+\hline
+\textbf{Quicksort Left Pivot} & \textbf{1024} & \textbf{2048} & \textbf{4096} \\
+\hline
+\textbf{Ascending} & 0.19 & 0.74 & 2.79 \\
+\hline
+\textbf{Descending} & 0.37 & 1.43 & 5.85 \\
+\hline
+\textbf{Random}  & 0.17 & 0.34 & 0.69 \\
+\hline
+\textbf{Repeated} & 0.020 & 0.043 & 0.090 \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{| X | X | X | X |}
+\hline
+\textbf{Quicksort Median of 3} & \textbf{1024} & \textbf{2048} & \textbf{4096} \\
+\hline
+\textbf{Ascending} & 0.0089 & 0.018 & 0.041 \\
+\hline
+\textbf{Descending} & 0.015 & 0.033 & 0.082 \\
+\hline
+\textbf{Random}  & 0.19 & 0.34 & 0.69 \\
+\hline
+\textbf{Repeated} & 0.021 & 0.045 & 0.092 \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{| X | X | X | X |}
+\hline
+\textbf{3 Way Quicksort} & \textbf{1024} & \textbf{2048} & \textbf{4096} \\
+\hline
+\textbf{Ascending} & 0.024 & 0.062 & 0.18 \\
+\hline
+\textbf{Descending} & 0.019 & 0.050 & 0.13 \\
+\hline
+\textbf{Random}  & 0.19 & 0.34 & 0.70 \\
+\hline
+\textbf{Repeated} & 0.0094 & 0.022 & 0.048 \\
+\hline
+\end{tabularx}
+\end{table}
+
+\section{Discussion}
+\end{document}
