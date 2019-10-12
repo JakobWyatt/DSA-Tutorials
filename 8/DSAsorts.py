@@ -5,7 +5,6 @@
 #
 import numpy as np
 
-
 def bubbleSort(A):
     isSorted = False
     while not isSorted:
@@ -69,18 +68,18 @@ def merge(A, left, mid, right):
         A[i + left] = x
 
 
-def quickSort(A):
+def quickSort(A, pivotFunc):
     """ quickSort - front-end for kick-starting the recursive algorithm
     """
-    quickSortRecurse(A, 0, len(A) - 1)
+    quickSortRecurse(A, 0, len(A) - 1, pivotFunc)
 
 
-def quickSortRecurse(A, left, right):
+def quickSortRecurse(A, left, right, pivotFunc):
     if right > left:
-        pivot = findPivot(A, left, right)
+        pivot = pivotFunc(A, left, right)
         pivot = doPartitioning(A, left, right, pivot)
-        quickSortRecurse(A, left, pivot - 1)
-        quickSortRecurse(A, pivot + 1, right)
+        quickSortRecurse(A, left, pivot - 1, pivotFunc)
+        quickSortRecurse(A, pivot + 1, right, pivotFunc)
 
 
 def doPartitioning(A, left, right, pivot):
@@ -95,8 +94,21 @@ def doPartitioning(A, left, right, pivot):
     return cur
 
 
-def findPivot(A, left, right):
-    return (left + right) // 2
+def leftPivot(A, left, right):
+    return left
+
+
+def medianOfThreePivot(A, left, right):
+    # Find the median of the left, mid, and right values
+    mid = (left + right) // 2
+    if A[left] <= A[mid] and A[mid] <= A[right] or A[right] <= A[mid] and A[mid] <= A[left]:
+        pivot = mid
+    elif A[mid] <= A[left] and A[left] <= A[right] or A[right] <= A[left] and A[left] <= A[mid]:
+        pivot = left
+    else:
+        pivot = right
+    return pivot
+
 
 if __name__ == "__main__":
     A = [4, 3, 2, 1, 5]

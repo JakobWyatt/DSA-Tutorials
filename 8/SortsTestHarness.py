@@ -80,7 +80,9 @@ def doSort(n, sortType, arrayType):
         elif sortType == "m":
             DSAsorts.mergeSort(A)
         elif sortType == "q":
-            DSAsorts.quickSort(A)
+            DSAsorts.quickSort(A, DSAsorts.leftPivot)
+        elif sortType == "a":
+            DSAsorts.quickSort(A, DSAsorts.medianOfThreePivot)
         elif sortType == "j":
             A.sort()
         else:
