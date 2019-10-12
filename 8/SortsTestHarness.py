@@ -19,11 +19,13 @@ import sys
 import timeit
 import DSAsorts
 import random
+import math
 
 
 REPEATS = 3           #No times to run sorts to get mean time
 NEARLY_PERCENT = 0.10 #% of items to move in nearly sorted array
 RANDOM_TIMES = 100    #No times to randomly swap elements in array
+UNIQUE_FRAC = 1/3     # Amount of repeating array that is unique
 
 def usage():
     print(" Usage: java TestHarness n xy [xy ...]")
@@ -42,32 +44,39 @@ def usage():
     print("           n - 1..n nearly sorted (10% moved)")
 
 def doSort(n, sortType, arrayType):
-        A = np.arange(1, n+1, 1)   #create array with values from 1 to n
+        A = np.arange(1, n + 1, 1)   #create array with values from 1 to n
         
         if arrayType == 'a':
             ...
         elif arrayType =='d':  #convert to descending
-            for i in range(0, int(n/2)):
+            for i in range(0, int(n / 2)):
                 temp = A[i]
                 A[i] = A[n-i-1]
                 A[n-i-1] = temp
             print("Descending: ", A)
         elif arrayType == 'r':
-            for i in range(RANDOM_TIMES*n):
-                x = int(random.random()*n)
-                y = int(random.random()*n)
-                temp = A[x]
-                A[x] = A[y]
-                A[y] = temp
+            for i in range(RANDOM_TIMES * n):
+                x = int(random.random() * n)
+                y = int(random.random() * n)
+                A[x], A[y] = A[y], A[x]
             print("Random: ", A)
         elif arrayType == 'n':
-            for i in range(int(n*NEARLY_PERCENT/2+1)):
+            for i in range(int(n * NEARLY_PERCENT / 2 + 1)):
                 x = int(random.random()*n)
                 y = int(random.random()*n)
                 temp = A[x]
                 A[x] = A[y]
                 A[y] = temp
             print("Nearly sorted: ", A)
+        elif arrayType == "R":
+            # Repeating: 1/3 of array is unique, remaining is sampled
+            unique = math.ceil(n * UNIQUE_FRAC)
+            for i in range(RANDOM_TIMES * unique):
+                x = int(random.random() * unique)
+                y = int(random.random() * unique)
+                A[x], A[y] = A[y], A[x]
+            for i, _ in enumerate(A[unique:]):
+                A[i + unique] = random.choice(A[:unique])
         else:
             print("Unsupported array type")
 
@@ -84,6 +93,10 @@ def doSort(n, sortType, arrayType):
         elif sortType == "a":
             DSAsorts.quickSort(A, DSAsorts.medianOfThreePivot)
         elif sortType == "j":
+            A.sort()
+        elif sortType == "p":
+            # Print the array for testing purposes
+            print(A)
             A.sort()
         else:
             print("Unsupported sort algorithm")
