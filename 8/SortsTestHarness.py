@@ -25,7 +25,7 @@ import math
 REPEATS = 3           #No times to run sorts to get mean time
 NEARLY_PERCENT = 0.10 #% of items to move in nearly sorted array
 RANDOM_TIMES = 100    #No times to randomly swap elements in array
-UNIQUE_FRAC = 1/3     # Amount of repeating array that is unique
+UNIQUE_FRAC = 1/50     # Amount of repeating array that is unique
 
 def usage():
     print(" Usage: java TestHarness n xy [xy ...]")
