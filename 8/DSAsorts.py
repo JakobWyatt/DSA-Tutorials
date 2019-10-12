@@ -68,10 +68,13 @@ def merge(A, left, mid, right):
         A[i + left] = x
 
 
-def quickSort(A, pivotFunc):
+def quickSort(A, *, pivotFunc, threeWay = False):
     """ quickSort - front-end for kick-starting the recursive algorithm
     """
-    quickSortRecurse(A, 0, len(A) - 1, pivotFunc)
+    if threeWay:
+        quickSort3wayRecurse(A, 0, len(A) - 1, pivotFunc)
+    else:
+        quickSortRecurse(A, 0, len(A) - 1, pivotFunc)
 
 
 def quickSortRecurse(A, left, right, pivotFunc):
@@ -80,6 +83,32 @@ def quickSortRecurse(A, left, right, pivotFunc):
         pivot = doPartitioning(A, left, right, pivot)
         quickSortRecurse(A, left, pivot - 1, pivotFunc)
         quickSortRecurse(A, pivot + 1, right, pivotFunc)
+
+
+def quickSort3wayRecurse(A, left, right, pivotFunc):
+    if right > left:
+        pivot = pivotFunc(A, left, right)
+        i, j = doPartitioning3way(A, left, right, pivot)
+        quickSort3wayRecurse(A, left, i - 1, pivotFunc)
+        quickSort3wayRecurse(A, j + 1, right, pivotFunc)
+
+
+def doPartitioning3way(A, left, right, pivot):
+    i = left
+    j = right
+    k = left
+    pivotVal = A[pivot]
+    while k <= j:
+        if A[k] < pivotVal:
+            A[k], A[i] = A[i], A[k]
+            i += 1
+            k += 1
+        elif A[k] > pivotVal:
+            A[k], A[j] = A[j], A[k]
+            j -= 1
+        else:
+            k += 1
+    return i, j
 
 
 def doPartitioning(A, left, right, pivot):
@@ -108,9 +137,3 @@ def medianOfThreePivot(A, left, right):
     else:
         pivot = right
     return pivot
-
-
-if __name__ == "__main__":
-    A = [4, 3, 2, 1, 5]
-    quickSort(A)
-    print(A)
