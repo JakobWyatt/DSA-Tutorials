@@ -10,6 +10,8 @@
 \maketitle
 \section{Data}
 
+The 'repeated' test data has one unique entry every 50 entries.
+
 \begin{table}[H]
 \centering
 \begin{tabularx}{\linewidth}{| X | X | X | X |}
@@ -79,4 +81,25 @@
 \end{table}
 
 \section{Discussion}
+Mergesort has a time complexity of $O\left(n\log n\right)$ on all inputs.
+Quicksort has a time complexity of $O\left(n\log n\right)$ on average,
+with a worst case time complexity of $O\left(n^2\right)$.
+
+Mergesort performs significantly better on data with some kind of structure.
+This is likely due to branch prediction significantly increasing the performance
+while merging.
+
+Quicksort with a median of three pivot performs equivalently to the left pivot
+on random and repeated datasets. However, on already sorted (ascending and descending)
+datasets, the median of three pivot performs significantly better than the left pivot.
+This is due to the performance of quicksort with left pivot decreasing to worst case
+$O\left(n^2\right)$ on these datasets.
+
+3 way quicksort (dutch flag algorithm) (with median of three pivot) performs equivalently
+to the other quicksort algorithms on random data. However, it has much better performance
+on repeating data, performing about twice as fast as ordinary quicksort.
+It has lower performance on already sorted data than quicksort with median of three pivot,
+which is likely due to the fact that it must swap almost all elements desite the data
+already being sorted. However, the overall algorithmic complexity does not degrade in these cases.
+
 \end{document}
