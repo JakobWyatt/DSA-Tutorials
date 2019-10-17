@@ -1,0 +1,2 @@
+The visualization splits a node when full,
+while the lecture algorithm only splits at the last possible moment.
