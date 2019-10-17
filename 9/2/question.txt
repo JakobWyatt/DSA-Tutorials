@@ -1,0 +1,2 @@
+The visualization does not proactively split nodes as it moves down the tree
+- it instead waits until it needs to.
