@@ -1,0 +1,104 @@
+\documentclass{article}
+
+\usepackage{microtype}
+\usepackage{listings}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{gensymb}
+
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  frame=single,
+  breaklines=true,
+  language=python,
+  tabsize=4
+}
+
+\title{Advanced Trees}
+\author{Jakob Wyatt\\19477143}
+
+\begin{document}
+\maketitle
+\section{Height Comparison}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{| c | X | X | X |}
+\hline
+ & \textbf{Randomized (Size 9)} & \textbf{Increasing (Size 8)} & \textbf{Decreasing (Size 11)} \\
+\hline
+\textbf{Binary Search Tree} & 4 & 7 & 10 \\
+\hline
+\textbf{2-3-4 Tree} & 1 & 1 & 2 \\
+\hline
+\textbf{B-Tree (Degree 5)}  & 1 & 1 & 1 \\
+\hline
+\textbf{Red-Black Tree} & 3 & 3 & 4 \\
+\hline
+\end{tabularx}
+\end{table}
+
+The binary search tree becomes degenerate for the increasing and decreasing datasets.
+The other trees avoid this, as they are self balancing. The 2-3-4 trees and B-Tree
+will often have a lower height than the red-black tree, as they contain more keys per node.
+
+\section{Complexity Analysis}
+
+All self balancing trees are given as average-case complexity.
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{| X | X | X | X |}
+\hline
+ & \textbf{Insert} & \textbf{Find} & \textbf{Delete} \\
+\hline
+\textbf{Binary Search Tree (Average Case)} & $O\left(\log_2n\right)$ & $O\left(\log_2n\right)$ & $O\left(\log_2n\right)$ \\
+\hline
+\textbf{Binary Search Tree (Worst Case)} & $O\left(n\right)$ & $O\left(n\right)$ & $O\left(n\right)$ \\
+\hline
+\textbf{2-3-4 Tree} & $O\left(\log_4n\right)$ & $O\left(\log_4n\right)$ & $O\left(\log_4n\right)$ \\
+\hline
+\textbf{B-Tree (Degree $d$)}  & $O\left(d\log_dn\right)$ & $O\left(d\log_dn\right)$ & $O\left(d\log_dn\right)$ \\
+\hline
+\textbf{Red-Black Tree} & $O\left(\log_2n\right)$ & $O\left(\log_2n\right)$ & $O\left(\log_2n\right)$ \\
+\hline
+\end{tabularx}
+\end{table}
+
+The worst case time complexities were not included for the self-balancing binary trees,
+as they do not degrade as badly as the binary search tree does.
+The time complexity of the 2-3-4 tree initially looks better than the red-black tree. However,
+due to the large constant factors contained in having 3 keys per node, it can often
+end up being slower in implementation.
+The self balancing trees will have much better performance than the BST on degenerate datasets,
+as the automatic balancing allows them to retain performance on the order of $O\left(\log n\right)$.
+
+\section{Difficulty of Implementation}
+I believe that the easiest tree to implement
+would be the 2-3-4 tree, as it has a fixed size
+and an easily understandable node splitting
+strategy.
+Next would be the B-Tree, as it is a more
+generalized version of the 2-3-4 tree, however
+still has an easily understandable splitting
+strategy / algorithm.
+I believe that the most difficult tree to implement would
+be the red-black tree, as the insertion algorithm has many special
+cases to consider, which adds more room for error.
+\section{In-Order Traversal}
+An in order traversal on a red-black tree is the same as the traversal
+of a normal binary search tree.
+An in order traversal of a B-tree could be implemented using recursion,
+using the example code below.
+\begin{lstlisting}
+def inOrderBTree(node):
+    # len(node.key) + 1 == len(node.children)
+    for n, c in zip(node.key, node.children[:-1]):
+        inOrderBTree(c)
+        process(n)
+    inOrderBTree(node.children[-1])
+\end{lstlisting}
+An in order traversal on a 2-3-4 tree is a special case of
+the traversal of a B-tree of order 4.
+\end{document}
