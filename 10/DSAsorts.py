@@ -159,8 +159,23 @@ def shellSortGap(A, gap):
 
 
 def countingSort(A):
-    ...
+    # A must be an integer array
+    counting(A, min(A), max(A) + 1)
+
+
+def counting(A, min, max):
+    count = np.zeros(max - min, dtype=int)
+    # Count the elements in the range
+    for x in A:
+        count[x - min] += 1
+    # Slot into result
+    i = 0
+    for j, x in enumerate(count):
+        for _ in range(x):
+            A[i] = j + min
+            i += 1
 
 
 def radixLsdSort(A):
+    # A must be an integer array
     ...

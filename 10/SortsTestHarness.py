@@ -98,6 +98,8 @@ def doSort(n, sortType, arrayType):
             A.sort()
         elif sortType == "S":
             DSAsorts.shellSort(A)
+        elif sortType == "c":
+            DSAsorts.countingSort(A)
         elif sortType == "p":
             # Print the array for testing purposes
             print(A)
