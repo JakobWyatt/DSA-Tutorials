@@ -96,6 +96,8 @@ def doSort(n, sortType, arrayType):
             DSAsorts.quickSort(A, pivotFunc=DSAsorts.medianOfThreePivot, threeWay=True)
         elif sortType == "j":
             A.sort()
+        elif sortType == "S":
+            DSAsorts.shellSort(A)
         elif sortType == "p":
             # Print the array for testing purposes
             print(A)

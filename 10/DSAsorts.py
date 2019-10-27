@@ -17,8 +17,12 @@ def bubbleSort(A):
 
 
 def insertionSort(A):
-    for i in range(len(A)):
-        while i > 0 and A[i] < A[i - 1]:
+    insertion(A, 0, len(A))
+
+
+def insertion(A, left, right):
+    for i in range(left, right):
+        while i > left and A[i] < A[i - 1]:
             A[i], A[i - 1] = A[i - 1], A[i]
             i -= 1
     return A
@@ -137,3 +141,26 @@ def medianOfThreePivot(A, left, right):
     else:
         pivot = right
     return pivot
+
+
+def shellSort(A):
+    shellSortGap(A, 5)
+    shellSortGap(A, 3)
+    shellSortGap(A, 1)
+
+
+def shellSortGap(A, gap):
+    if gap == 1:
+        insertionSort(A)
+    else:
+        for i in range(0, len(A) // gap):
+            insertion(A, i, i + gap)
+        insertion(A, len(A) // gap * gap, len(A))
+
+
+def countingSort(A):
+    ...
+
+
+def radixLsdSort(A):
+    ...
