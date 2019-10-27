@@ -4,6 +4,7 @@
 # Python file to hold all sorting methods
 #
 import numpy as np
+import math
 
 def bubbleSort(A):
     isSorted = False
@@ -163,11 +164,12 @@ def countingSort(A):
     counting(A, min(A), max(A) + 1)
 
 
-def counting(A, min, max):
+def counting(A, min, max, transform=lambda x: x):
     count = np.zeros(max - min, dtype=int)
     # Count the elements in the range
     for x in A:
-        count[x - min] += 1
+        print(transform(x))
+        count[transform(x) - min] += 1
     # Slot into result
     i = 0
     for j, x in enumerate(count):
@@ -178,4 +180,7 @@ def counting(A, min, max):
 
 def radixLsdSort(A):
     # A must be an integer array
-    ...
+    base = 10
+    places = math.floor(math.log(max(A)) / math.log(base)) + 1
+    for x in range(places):
+        counting(A, 0, base, lambda a: a // (base ** x) % base)

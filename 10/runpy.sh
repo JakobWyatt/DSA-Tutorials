@@ -30,12 +30,10 @@
 # - r = randomly ordered (actually: randomly swapped around)
 # - n = ascending with 10% randomly swapped (ie: nearly sorted)
 #
-#sorts="br sr qr mr bn sn qn mn ba sa qa ma"
-#sorts="ba br bn bd"
-sorts="jr cr"
+sorts="jr rr cr Sr"
 
 # The "max" variable contains the maximum n that is passed to SortsTestHarness
-max=4096
+max=1024
 
 
 ########################### DO NOT CHANGE BELOW THIS LINE ##################
@@ -46,7 +44,7 @@ function runEm()
     {
     for i in `awk 'BEGIN{for(i=1;i<='"$max"';i*=2)print i;exit}'`
     do
-        python3 SortsTestHarness.py $i $sorts
+        python3 -Werror SortsTestHarness.py $i $sorts
     done
     }
 

@@ -100,6 +100,8 @@ def doSort(n, sortType, arrayType):
             DSAsorts.shellSort(A)
         elif sortType == "c":
             DSAsorts.countingSort(A)
+        elif sortType == "r":
+            DSAsorts.radixLsdSort(A)
         elif sortType == "p":
             # Print the array for testing purposes
             print(A)
