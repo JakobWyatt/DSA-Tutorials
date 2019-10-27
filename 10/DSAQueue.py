@@ -1,29 +1,27 @@
 import unittest
 from typing import Type
+from collections import deque
 
 
 class DSAQueue():
     def __init__(self):
-        self._queue = DSALinkedList()
+        self._queue = deque()
 
     def enqueue(self, item : object):
-        self._queue.insertLast(item)
+        self._queue.append(item)
 
     def dequeue(self) -> object:
-        return self._queue.removeFirst()
+        return self._queue.popleft()
 
     def peek(self) -> object:
-        return self._queue.peekFirst()
+        return self._queue[0]
 
     def isEmpty(self) -> bool:
-        return self._queue.isEmpty()
+        return len(self._queue) == 0
 
     # Starts at the element referenced by peek
     def __iter__(self):
         return self._queue.__iter__()
-
-    def __reversed__(self):
-        return self._queue.__reversed__()
 
 
 class TestDSAQueue(unittest.TestCase):
