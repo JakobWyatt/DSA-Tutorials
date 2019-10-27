@@ -1,0 +1,43 @@
+digraph DSACollections {
+    node [
+        shape = "record"
+    ]
+
+    unittestTestCase [
+        label = "{unittest.TestCase}"
+    ]
+
+    DSAQueue [
+        label = "{DSAQueue|- queue: collections.deque|+ enqueue(item: Object) : None\l+ dequeue() : Object\l+ peek() : Object\l+ isEmpty() : bool\l}"
+    ]
+
+    TestDSAQueue [
+        label = "{TestDSAQueue|+ testDSAQueue() : None\l}"
+    ]
+
+    UnitTestDSAHash [
+        label = "{UnitTestDSAHash
+        |+ testReadExport(): None\l}"
+    ]
+
+    DSAHash [
+        label = <{DSAHashTable
+        |- _dict: Object
+        |+ put(key: Object, value: Object): None
+        <br align="left"/>+ get(key: Object): Object
+        <br align="left"/>+ hasKey(key: Object): bool
+        <br align="left"/>+ remove(key: Object): Object
+        <br align="left"/>+ export(): str
+        <br align="left"/><u>+ read(string: str): DSAHashTable</u>
+        <br align="left"/>+ __len__(): int
+        <br align="left"/>+ __iter__()<br align="left"/>}>
+    ]
+
+    UnitTestDSAHash -> unittestTestCase [arrowhead = "onormal"]
+    UnitTestDSAHash -> DSAHash [arrowhead = "vee"]
+
+    TestDSAQueue -> unittestTestCase [arrowhead = "onormal"]
+    TestDSAQueue -> DSAQueue [arrowhead = "vee"]
+
+    rankdir=BT
+}
